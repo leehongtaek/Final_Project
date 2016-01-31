@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!--  Member 총 15개의 컬럼 
+	private String mem_code; 		// 1.  사원번호
+	private String mem_id;			// 2.  아이디
+	private String mem_pwd;			// 3.  패스워드
+	private String mem_name;		// 4.  이름
+	private int posit_num;			// 5.  직급번호
+	private int dept_num;			// 6.  부서번호
+	private String mem_tel;			// 7.  전화번호
+	private String mem_email;		// 8.  이메일
+	private String mem_hiredate; 	// 9. 입사일
+	private String mem_birthdate; 	// 10. 생년월일
+	private String mem_post;		// 11. 우편번호
+	private String mem_roadaddr;	// 12. 도로명주소
+	private String mem_jibunaddr;	// 13. 지번 주소
+	private String mem_detailaddr;	// 14. 상세주소
+	private String mem_state;  		// 15. 멤버 상태
+); -->
+<mapper namespace="user">
+
+	<!-- 회원 정보 INSERT  -->
+ 	<insert id="add" parameterType="membervo">
+ 		insert into MEMBER (
+ 		MEM_CODE,
+		MEM_ID,
+		MEM_PWD,
+		MEM_NAME,
+		DEPT_NUM,
+		POSIT_NUM,
+		MEM_TEL,
+		MEM_EMAIL,
+		MEM_HIREDATE,
+		MEM_BIRTHDATE,
+		MEM_POST,
+		MEM_ROADADDR,
+		MEM_JIBUNADDR,
+		MEM_DETAILADDR) 
+ 		values (member_code_generator(#{mem_hiredate},#{mem_birthdate}),
+ 		#{mem_id},
+ 		#{mem_pwd},
+ 		#{mem_name},
+ 		#{posit_num},
+ 		#{dept_num},
+ 		#{mem_tel},
+ 		#{mem_email},
+ 		TO_DATE(#{mem_hiredate},'YYYY-MM-DD'),
+ 		TO_DATE(#{mem_birthdate},'YYYY-MM-DD'),
+ 		#{mem_post},
+ 		#{mem_jibunaddr},
+ 		#{mem_detailaddr},
+ 		#{mem_birthdate}
+ 		)
+ 	</insert>
+ 	
+ 	<!-- 회원 정보 ID 중복 CHECK -->
+ 	<select id="idcheck" parameterType="String" resultType="int">
+ 		select count(*) from MEMBER where mem_id = #{mem_id}
+ 	</select>	
+ 	
+ 	<!-- 회원 정보 LOGINCHECK -> 스프링 시큐리티로 대체( 비사용 쿼리 )-->
+ 	<select id="logincheck" parameterType="membervo" resultType="int">
+ 		select count(*) from MEMBER where mem_id = #{mem_id} AND mem_pwd = #{mem_pwd}
+ 	</select>	
+ 	
+ 	<!-- 회원 정보 LOGIN 후 SELECT -->
+ 	<select id="login" resultType="membervo" parameterType="membervo">
+ 		select * from MEMBER where mem_id = #{mem_id} AND mem_pwd = #{mem_pwd}
+ 	</select>	
+ 	
+ 	
+ 	<!-- 회원이 비번 찾을 EMAIL 발송시 사용 SELECT -->
+ 	<select id="email_check" resultType="membervo" parameterType="membervo">
+ 		select * from MEMBER where mem_id = #{mem_id} AND mem_email = #{mem_email}
+ 	</select>	
+ 	
+ 	<!-- profile 에서 수정할 정보를 SELECT -->
+ 	<select id="profile_info" resultType="membervo" parameterType="String">
+ 		select * from MEMBER where mem_code = #{mem_code}
+ 	</select>	
+ 	
+ 	<!-- profile 에서 수정할 정보를  UPDATE -->
+ 	<update id="profile_update" parameterType="membervo">
+ 		update MEMBER set
+ 		MEM_PWD = #{mem_pwd},
+ 		MEM_NAME = #{mem_name},
+ 		MEM_BIRTHDATE = TO_DATE(#{mem_birthdate},'YYYY-MM-DD'),
+ 		MEM_TEL = #{mem_tel},
+ 		MEM_EMAIL = #{mem_email},
+ 		MEM_HIREDATE = TO_DATE(#{mem_hiredate},'YYYY-MM-DD'),
+ 		DEPT_NUM = #{dept_num},
+ 		POSITION_NUM =#{position_num},
+ 		MEM_POST = #{mem_post},
+ 		MEM_ROADADDR = #{mem_roadaddr},
+ 		MEM_JIBUNADDR = #{mem_jibunaddr},
+ 		MEM_DETAILADDR = #{mem_detailaddr}
+ 		where mem_code = #{mem_code}
+ 	</update>	
+ 	
+ 	<select id="deptInfo" resultType="java.util.HashMap">
+ 		SELECT 
+  			DEPT_NUM as dept_num,
+  			DEPT_NAME as dept_name 
+		FROM MEMDEPT
+ 	</select>
+
+ 	<select id="positInfo" resultType="java.util.HashMap">
+ 		SELECT 
+  			POSIT_NUM as posit_num,
+ 			POSIT_NAME as posit_name
+		FROM MEMPOSIT
+ 	</select>
+	
+	
+	<select id="user_search_list" resultType="java.util.HashMap">
+ 		SELECT
+			MEM_CODE,  
+			MEM_ID, 
+			MEM_NAME,  
+			DEPT_NUM,  
+			DEPT_NAME, 
+			POSIT_NUM, 
+			POSIT_NAME,
+			MEM_HIREDATE
+		FROM MEMBER_INFO 
+		WHERE 1=1 
+		<if test="mem_name !=null and mem_name !='' ">
+		AND MEM_NAME LIKE '%'|| #{mem_name} || '%'
+		</if>
+		<if test="posit_num != null and posit_num !=0">
+		AND POSIT_NUM = #{posit_num}	
+		</if>
+		<if test="dept_num != null and dept_num !=0">
+		AND DEPT_NUM = #{dept_num}	
+		</if>
+		ORDER BY 1 DESC
+ 	</select>
+	
+	
+</mapper>

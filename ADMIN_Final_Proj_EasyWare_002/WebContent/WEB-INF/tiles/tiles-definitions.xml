@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+      
+<tiles-definitions>  	
+  	<!-- ADMIN MODE  --> 
+  	<!-- Tiles 선언 기본 템플릿 선언 -->
+  	<definition name="/" template="/WEB-INF/views/admin/layout/layout.jsp" >
+  		<put-attribute name="header" 
+  			value="/WEB-INF/views/admin/layout/header.jsp" />
+  		<put-attribute name="menu" 
+  			value="/WEB-INF/views/admin/layout/menu.jsp" />
+  		<put-attribute name="body" 
+  			value="/WEB-INF/views/admin/layout/body.jsp" />
+  		<put-attribute name="footer" 
+  			value="/WEB-INF/views/admin/layout/footer.jsp" />
+  	</definition>
+  	
+  	<definition name="/*" extends="/admin">
+  		<put-attribute name="body" value="/WEB-INF/views/admin/menu/{1}.jsp"/>
+  	</definition>
+  	
+  	<!-- 인텍스 페이지에서 로그인 처리 -->
+  	<definition name="/index" template="/WEB-INF/views/common/index.jsp" />
+  	<definition name="/denied" template="/WEB-INF/views/common/error/denied.jsp" />
+  	<definition name="/logout" template="/WEB-INF/views/common/login/logout.jsp" />
+  	<definition name="/logout-success" template="/WEB-INF/views/common/login/logout-success.jsp" />
+  	
+  	<!-- personManager 사원 관리 -->
+  	<definition name="/personManager" extends="/">
+  		<put-attribute name="body" value="/WEB-INF/views/admin/person_manage/person_manage_list.jsp"></put-attribute>
+  	</definition>
+  	<definition name="/personManager/detail" extends="/">
+  		<put-attribute name="body" value="/WEB-INF/views/admin/person_manage/person_manage_detail.jsp"></put-attribute>
+  	</definition>
+  	<definition name="/personManager/search" extends="/">
+  		<put-attribute name="body" value="/WEB-INF/views/admin/person_manage/person_manage_search.jsp"></put-attribute>
+  	</definition>
+  	
+  	<!-- Detpartment Manager 부서 관리-->
+  	<definition name="/deptMangager" extends="/">
+  		<put-attribute name="body" value="/WEB-INF/views/admin/person_manage/dept_manage_list.jsp" />
+  	</definition>
+  	
+  	<!-- Position Manager 직급 관리 -->
+  	<definition name="/positManager" extends="/">
+  		<put-attribute name="body" value="/WEB-INF/views/admin/person_manage/posit_manage_list.jsp" />
+  	</definition>
+  	<!-- RoomRent Manager -->
+  	<definition name="/roomrent/*" extends="/">
+  		<put-attribute name="body" value="/WEB-INF/views/admin/roomrent_manage/{1}.jsp"/>
+  	</definition>
+  	
+  	<!-- Authority Manager 직급 관리 -->
+  	<definition name="/authManager" extends="/">
+  		<put-attribute name="body" value="/WEB-INF/views/admin/person_manage/auth_manage_list.jsp" />
+  	</definition>
+  	
+	<!-- TimeCard Manager 직급 관리 -->
+  	<definition name="/timecardManager" extends="/">
+  		<put-attribute name="body" value="/WEB-INF/views/admin/timecard_manage/timecard_manage.jsp" />
+  	</definition>
+  	<!-- Logging 관리 -->
+  	<definition name="/logging/*" extends="/"> 
+  		<put-attribute name="body" value="/WEB-INF/views/admin/logging/logging_{1}.jsp" />
+  	</definition>
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+  	
+</tiles-definitions>

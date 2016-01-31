@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="auth">
+	
+	
+	<select id="totalCnt" resultType="int">
+		SELECT COUNT(*)
+		FROM MEMBER m , 
+		     MEMROLES r , 
+		     MEMDEPT d , 
+		     MEMPOSIT p
+		WHERE r.MEM_ID = m.MEM_ID 
+		AND r.MEM_CODE = m.MEM_CODE 
+		AND m.DEPT_NUM = d.DEPT_NUM
+		AND p.POSIT_NUM = m.POSIT_NUM
+	</select>
+	
+	<!-- 권한 리스트 조회  -->
+	<sql id="sql_list" >
+ 		SELECT d.DEPT_NAME , 
+		       p.POSIT_NAME , 
+		       m.MEM_NAME ,
+		       m.MEM_CODE ,
+		       m.MEM_ID ,
+		       r.ROLE_AUTH 
+		FROM MEMBER m , 
+		     MEMROLES r , 
+		     MEMDEPT d , 
+		     MEMPOSIT p
+		WHERE r.MEM_ID = m.MEM_ID 
+		AND r.MEM_CODE = m.MEM_CODE 
+		AND m.DEPT_NUM = d.DEPT_NUM
+		AND p.POSIT_NUM = m.POSIT_NUM
+		ORDER BY MEM_CODE DESC 
+ 	</sql>
+	
+	<!-- 사원 리스트 가져오기 -->
+	<select id="list" resultType="authorityvo" parameterType="java.util.HashMap" >
+	SELECT *
+	    FROM (SELECT ROWNUM AS RNUM, Z.* 
+	    	  FROM (<include refid="sql_list"/>) Z
+	<![CDATA[	    		  
+	    WHERE ROWNUM <= #{record_end_no})
+	WHERE RNUM >= #{record_Start_no}
+	]]>
+ 	</select>
+	 
+ 	<insert id="insert" parameterType="authorityvo" >
+ 		INSERT INTO MEMROLES 
+ 		VALUES (#{role_auth},#{mem_id},#{mem_code})
+ 	</insert>
+ 		
+ 	 
+ 	
+ 	<delete id="delete" parameterType="authorityvo" >
+ 		DELETE 
+ 		FROM MEMROLES 
+ 		WHERE MEM_ID = #{mem_id}
+	      AND MEM_CODE = #{mem_code}
+ 	</delete>
+ 	
+</mapper>

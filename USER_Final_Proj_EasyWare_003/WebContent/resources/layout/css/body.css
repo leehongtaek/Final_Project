@@ -1,0 +1,177 @@
+/**
+* 작업 날짜 : 2015. 12. 3.
+* 구현 내용 :   
+*  
+* @author By kosta 
+*/
+@CHARSET "UTF-8";
+
+
+* {
+	box-sizing: border-box;
+}
+.sortable__list {
+	list-style: none;
+	margin: 3em;
+	margin-left: -24px;
+	padding: 0;
+	text-align: center;
+	width: 100%;
+	perspective: 500px;
+}
+ 
+.sortable__grid {
+	background: #ecf0f1;
+	border-radius: 1em; 
+  	cursor: pointer;
+	display: inline-block; 
+	height: 1100px; 
+	margin: 2px; 	 
+	position: relative;  
+	vertical-align: top;
+	width: 320px;    
+}  
+
+.sortable__grid__list {
+	list-style: none;
+	margin: 0px;  
+	padding: 0px;  
+		
+	height: 100%;
+	width: 100%;   
+	perspective: 0px;
+}
+    
+.sortable__task {  
+	background: #FFFFFF;  
+	border-radius: 1em;
+  	cursor: pointer;
+	display: inline-block;  
+	height: 400px;               
+	margin: 1px;       
+	position: relative;   
+	vertical-align: top;   
+	width: 320px;             	   
+}    
+    
+.sortable__report {  
+	background: #FFFFFF;  
+	border-radius: 1em;
+  	cursor: pointer;
+	display: inline-block;  
+	height: 600px;               
+	margin: 1px;      
+	position: relative;   
+	vertical-align: top;   
+	width: 320px;             	   
+}  
+
+ 
+.sortable__timecard {  
+	background: #FFFFFF;  
+	border-radius: 1em;
+  	cursor: pointer;
+	display: inline-block;  
+	height: 250px;                  
+	margin: 1px; 
+	margin-bottom: 1px;      
+	padding: 1px;         
+	position: relative;   
+	vertical-align: top;   
+	width: 320px;            	   
+} 
+
+
+.sortable__schedule {  
+	background: #FFFFFF;  
+	border-radius: 1em;
+  	cursor: pointer;
+	display: inline-block;  
+	height: 500px;               
+	margin: 1px;      
+	position: relative;   
+	vertical-align: top;   
+	width: 320px;            	   
+} 
+
+.sortable__board {  
+	background: #FFFFFF;  
+	border-radius: 1em;
+  	cursor: pointer;
+	display: inline-block;  
+	height: 300px;               
+	margin: 1px;      
+	position: relative;   
+	vertical-align: top;   
+	width: 320px;            	   
+} 
+
+
+.sortable__sns {  
+	background: #FFFFFF;  
+	border-radius: 1em;
+  	cursor: pointer;
+	display: inline-block;
+	height: 500px;                
+	margin: 1px;      
+	position: relative;   
+	vertical-align: top;   
+	width: 320px;            	     
+} 
+
+.sortable__rent {  
+	background: #FFFFFF;  
+	border-radius: 1em;
+  	cursor: pointer;
+	display: inline-block;
+	height: 400px;                
+	margin: 1px;       
+	position: relative;   
+	vertical-align: top;   
+	width: 320px;            	     
+} 
+
+
+.sortable__item2 {
+	background: #ecf0f1;
+	border-radius: 1em; 
+  cursor: pointer;
+	display: inline-block;
+	height: 30em;
+	margin: 1em; 
+	position: relative;
+	vertical-align: top;
+	width: 25em;         
+} 
+.sortable__item3 {
+	background: #ecf0f1;
+	border-radius: 1em; 
+  cursor: pointer;
+	display: inline-block; 
+	height: 30em; 
+	margin: 1em;
+	position: relative;  
+	vertical-align: top;
+	width: 25em;    
+} 
+
+
+.sortable__schedule2 {  
+	background: #FFFFFF;  
+	border-radius: 1em;
+  	cursor: pointer;
+	display: inline-block;
+	height: 500px;                
+	margin: 1em;      
+	position: relative;   
+	vertical-align: top;   
+	width: 320px;            	     
+} 
+
+
+.ui-sortable-placeholder { 
+	@extend .sortable__item;
+	background: #95a5a6;
+	box-shadow: inset 1px 1px 2px rgba(black,0.3);
+} 
+   

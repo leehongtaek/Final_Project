@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+<!-- typeAliases 설정을 하면 VO 객체에 alias 줄수 있다. -->
+	<settings>
+		<setting name="logImpl" value="SLF4J"/>
+	</settings>
+	<typeAliases>
+		<typeAlias type="com.easyware.person.manage.vo.Person_Vo" alias="personvo" />
+
+		<typeAlias type="com.easyware.roomrent.manage.vo.RoomRent_ManageVo" alias="roomrentvo"/>
+
+		<typeAlias type="com.easyware.person.manage.vo.Authority_Vo" alias="authorityvo" />
+		
+		<typeAlias type="com.easyware.timecard.manage.vo.TimeCard_Vo" alias="timecardvo" />
+		
+		<typeAlias type="com.easyware.common.security.Member_Vo_Security" alias="membervosecurity"/>
+		
+		<typeAlias type="com.easyware.common.logging.vo.Logging_Connect_Vo" alias="loggingconnectvo"/>
+	</typeAliases>
+	
+</configuration>	

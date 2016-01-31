@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+<!-- typeAliases 설정을 하면 VO 객체에 alias 줄수 있다. -->
+	<settings>
+		<setting name="logImpl" value="SLF4J"/>
+	</settings>
+	<typeAliases>
+		<typeAlias type="com.easyware.timecard.vo.TimeCard_Vo" alias="timecardvo" />
+		<typeAlias type="com.easyware.common.user.vo.Member_Vo" alias="membervo" />
+		<!-- 게시판 관련 -->
+		<typeAlias type="com.easyware.board.vo.Bbs_Vo" alias="bbsvo" />
+		<typeAlias type="com.easyware.board.vo.Bbs_Paging_Vo" alias="pagingvo" />
+		<typeAlias type="com.easyware.board.vo.Bbs_Search_Vo" alias="searchvo" />
+		<typeAlias type="com.easyware.board.vo.Bbs_Commboard_Vo" alias="commvo"/>
+		<typeAlias type="com.easyware.board.vo.Bbs_BoardInfo_Vo" alias="boardinfovo"/>
+		<!-- 게시판 관련 alias 끝 -->
+		
+		<typeAlias type="com.easyware.roomrent.vo.Rent_Vo" alias="rentvo"/>
+		<typeAlias type="com.easyware.roomrent.vo.Room_Vo" alias="roomvo"/>
+		<typeAlias type="com.easyware.roomrent.vo.Search_Vo" alias="svo"/>
+		
+		<typeAlias type="com.easyware.scheduler.vo.Scheduler_Vo" alias="schedulervo" />
+		
+		<!--report alias  -->
+		<typeAlias type="com.easyware.report.vo.DocForm_Vo" alias="docformvo"/>
+		<typeAlias type="com.easyware.report.vo.Report_Vo" alias="reportvo"/>
+		<typeAlias type="com.easyware.report.vo.ApprReport_Vo" alias="apprReportvo"/>
+		<typeAlias type="com.easyware.report.vo.WorkFlow_Vo" alias="workflowvo"/>
+
+		<!-- SNS alias -->
+		<typeAlias type="com.easyware.sns.vo.Sns_Vo" alias="snsvo" />
+		
+		<typeAlias type="com.easyware.person.manage.vo.Person_Vo" alias="personvo" />
+		<typeAlias type="com.easyware.task.vo.Task_Vo" alias="taskvo" />
+		<typeAlias type="com.easyware.task.vo.Assignee_Vo" alias="assigneevo" />
+		
+		<typeAlias type="com.easyware.common.security.Member_Vo_Security" alias="membervosecurity" />
+	
+		<!-- File alias -->
+		<typeAlias type="com.easyware.file.vo.File_Vo" alias="filevo"/>
+		
+		
+	</typeAliases>
+	
+</configuration>	

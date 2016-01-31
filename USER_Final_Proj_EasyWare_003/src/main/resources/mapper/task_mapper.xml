@@ -1,0 +1,492 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="task">
+	
+	
+	<select id="dashboard_list" resultType="java.util.HashMap" parameterType="String">
+		    SELECT ROWNUM,task.* FROM( SELECT  
+                          a.TASK_NUM,
+                          t.TASK_TITLE,
+                          a.ASSIGNEE_NUM,
+                          m.MEM_NAME,
+                          d.DEPT_NAME,
+                          p.POSIT_NAME,
+                          TO_CHAR(t.TASK_START,'YYYY-MM-DD') as TASK_START,
+                          TO_CHAR(t.TASK_END,'YYYY-MM-DD') as TASK_END,
+                          a.ASSIGNEE_STATE,
+                          TO_CHAR(t.TASK_DATE,'YYYY-MM-DD') as TASK_DATE
+                        FROM TASK t,ASSIGNEE a,MEMBER m, MEMDEPT d
+                        , MEMPOSIT p
+                        WHERE t.TASK_NUM = a.TASK_NUM
+                          AND m.MEM_CODE =
+                          t.TASK_ORGANIZER
+                          AND d.DEPT_NUM = m.DEPT_NUM
+                          AND p.POSIT_NUM =
+                          m.POSIT_NUM
+                          AND a.ASSIGNEE_ASSIGNEE = #{assignee_assignee} 
+                          
+                        ORDER BY t.TASK_DATE DESC) task
+			<![CDATA[ 
+    		WHERE ROWNUM <= 10
+    		]]>	
+	</select>
+	
+	
+	<select id="cnt_list_task" parameterType="java.util.HashMap" resultType="int">
+		SELECT COUNT(*)
+		FROM TASK
+		WHERE TASK_ORGANIZER= #{task_organizer}
+	</select>
+	
+	<!-- 관리자가 TASK 조회 -->
+	<select id="list_task" parameterType="java.util.HashMap" 
+		resultType="taskvo"> 
+		<![CDATA[ 
+		SELECT *
+	    FROM (SELECT ROWNUM AS RNUM, Z.* 
+	    	FROM (
+					SELECT TASK_NUM as task_num,
+					TASK_TITLE as task_title,
+					TASK_DESCRIPTION as task_description,
+					TO_CHAR(TASK_START,'YYYY-MM-DD') as task_start,
+					TO_CHAR(TASK_END,'YYYY-MM-DD') as task_end,
+					TASK_STATE as task_state, 
+					TASK_ORGANIZER as task_organizer,
+					TO_CHAR(TASK_DATE,'YYYY-MM-DD') as task_date
+					FROM TASK
+					WHERE TASK_ORGANIZER= #{task_organizer}
+					ORDER BY 1 DESC
+				) Z
+		       	WHERE ROWNUM <= #{record_end_no})
+		WHERE RNUM >= #{record_Start_no}
+		]]>			
+	</select>
+
+	<!-- 관리자가 TASK Detail 조회 -->
+	<select id="list_detail" parameterType="java.util.HashMap"  
+		resultType="taskvo">
+		SELECT TASK_NUM as task_num,
+		TASK_TITLE as task_title,
+		TASK_DESCRIPTION as task_description,
+		TO_CHAR(TASK_START,'YYYY-MM-DD')
+		as task_start,
+		TO_CHAR(TASK_END,'YYYY-MM-DD') as task_end,
+		TASK_STATE as
+		task_state,
+		TASK_ORGANIZER as task_organizer,
+		TO_CHAR(TASK_DATE,'YYYY-MM-DD') as task_date
+		FROM
+		TASK
+		WHERE TASK_ORGANIZER= #{task_organizer}
+		AND TASK_NUM =
+		#{task_num}
+	</select>
+
+	<!-- 할당 받은 TASK와 관련된 할당받은 사람들의 리스트를 불러옴 -->
+	<select id="list_detail_assignee_list" resultType="java.util.HashMap"  
+		parameterType="taskvo">
+		SELECT
+		a.ASSIGNEE_NUM,
+		a.TASK_NUM,
+		a.ASSIGNEE_ASSIGNEE,
+		m.MEM_NAME,
+		d.DEPT_NAME,
+		p.POSIT_NAME,
+		a.ASSIGNEE_COMMENT,
+		a.ASSIGNEE_STATE
+		FROM TASK t,ASSIGNEE a,MEMBER m, MEMDEPT d , MEMPOSIT
+		p
+		WHERE t.TASK_NUM = #{task_num}
+		AND t.TASK_NUM = a.TASK_NUM
+		AND
+		m.MEM_CODE =
+		a.ASSIGNEE_ASSIGNEE
+		AND d.DEPT_NUM = m.DEPT_NUM
+		AND
+		p.POSIT_NUM =
+		m.POSIT_NUM
+		ORDER BY 1 DESC
+	</select>
+
+	<!-- TASK 정보 INSERT -->
+	<insert id="add" parameterType="taskvo">
+		INSERT INTO TASK(
+		TASK_NUM,
+		TASK_TITLE,
+		TASK_DESCRIPTION,
+		TASK_START,
+		TASK_END,
+		TASK_ORGANIZER,
+		TASK_DATE
+		) VALUES
+		(TASK_SEQ.NEXTVAL,
+		#{task_title},
+		#{task_description},
+		TO_DATE(#{task_start},'YYYY-MM-DD'),
+		TO_DATE(#{task_end},'YYYY-MM-DD'),
+		#{task_organizer},
+		sysdate
+		)
+	</insert>
+	<!-- 가장 최근에 추가한 자신의 TASK PK 가져오기 -->
+	<select id="insert_return" resultType="int" parameterType="taskvo">
+ 	<![CDATA[ 
+ 		SELECT TASK_NUM FROM (SELECT t.TASK_NUM  
+ 		FROM TASK t
+	    WHERE TASK_ORGANIZER= #{task_organizer} ORDER BY 1 DESC)
+	    WHERE ROWNUM <=1
+	  ]]>
+	</select>
+
+	<!-- ASSIGNEE_NUM TASK_NUM ASSIGNEE_ASSIGNEE ASSIGNEE_COMMENT ASSIGNEE_STATE -->
+
+	<!-- TASK 부여 -->
+	<insert id="add_assignee" parameterType="assigneevo">
+		INSERT INTO
+		ASSIGNEE(
+		ASSIGNEE_NUM,
+		TASK_NUM,
+		ASSIGNEE_ASSIGNEE,
+		ASSIGNEE_COMMENT
+		) VALUES(
+		ASSIGNEE_SEQ.NEXTVAL,
+		#{task_num},
+		#{assignee_assignee},
+		#{assignee_comment}
+		)
+	</insert>
+
+
+	<!-- 부여한 TASK 수정하기 -->
+	<update id="update_task" parameterType="taskvo">
+		UPDATE
+		TASK SET
+		TASK_TITLE
+		= #{task_title},
+		TASK_DESCRIPTION = #{task_description},
+		TASK_START=
+		TO_DATE( #{task_start} , 'YYYY-MM-DD'),
+		TASK_END = TO_DATE( #{task_end}
+		, 'YYYY-MM-DD')
+		WHERE TASK_NUM = #{task_num}
+	</update>
+
+
+
+	<select id="cnt_list_assignee" parameterType="String" resultType="int">
+		SELECT
+		COUNT(*)
+		FROM TASK t,ASSIGNEE a,MEMBER m, MEMDEPT d
+		, MEMPOSIT p
+		WHERE t.TASK_NUM = a.TASK_NUM
+		AND m.MEM_CODE =
+		t.TASK_ORGANIZER
+		AND d.DEPT_NUM = m.DEPT_NUM
+		AND p.POSIT_NUM =m.POSIT_NUM
+		AND a.ASSIGNEE_ASSIGNEE = #{assignee_assignee}
+	</select>
+	<!-- 할당 받은 TASK 조회 -->
+	<select id="list_assignee" resultType="java.util.HashMap"
+		parameterType="java.util.HashMap">
+	<![CDATA[ 
+		SELECT *
+	    FROM (SELECT ROWNUM AS RNUM, Z.* 
+	    	FROM (
+			SELECT
+			a.TASK_NUM,
+			t.TASK_TITLE,
+			a.ASSIGNEE_NUM,
+			m.MEM_NAME,
+			d.DEPT_NAME,
+			p.POSIT_NAME, 
+			TO_CHAR(t.TASK_START,'YYYY-MM-DD') as TASK_START,
+			TO_CHAR(t.TASK_END,'YYYY-MM-DD') as TASK_END,
+			a.ASSIGNEE_STATE,
+			TO_CHAR(t.TASK_DATE,'YYYY-MM-DD') as TASK_DATE
+			FROM TASK t,ASSIGNEE a,MEMBER m, MEMDEPT d
+			, MEMPOSIT p
+			WHERE t.TASK_NUM = a.TASK_NUM
+			AND m.MEM_CODE =
+			t.TASK_ORGANIZER
+			AND d.DEPT_NUM = m.DEPT_NUM
+			AND p.POSIT_NUM =
+			m.POSIT_NUM
+			AND a.ASSIGNEE_ASSIGNEE = #{assignee_assignee}
+			ORDER BY 1
+			DESC
+			) Z
+		       	WHERE ROWNUM <= #{record_end_no})
+		WHERE RNUM >= #{record_Start_no}
+		]]>		
+	</select>
+	<!-- 할당 받은 TASK DETAIL -->
+	<select id="list_assignee_detail" resultType="java.util.HashMap"
+		parameterType="java.util.HashMap">
+		SELECT
+		a.TASK_NUM,
+		a.ASSIGNEE_NUM,
+		a.ASSIGNEE_ASSIGNEE,
+		a.ASSIGNEE_COMMENT,
+		a.ASSIGNEE_STATE,
+		m.MEM_NAME,
+		d.DEPT_NAME,
+		p.POSIT_NAME,
+		t.TASK_TITLE, 
+		TO_CHAR(t.TASK_START,'YYYY-MM-DD') as TASK_START,
+		TO_CHAR(t.TASK_END,'YYYY-MM-DD') as TASK_END,
+		t.TASK_DESCRIPTION,
+		TO_CHAR(t.TASK_DATE,'YYYY-MM-DD') as TASK_DATE
+		FROM TASK t,ASSIGNEE a, MEMBER m, MEMDEPT d , MEMPOSIT p
+		WHERE t.TASK_NUM = a.TASK_NUM
+		AND m.MEM_CODE = t.TASK_ORGANIZER
+		AND
+		d.DEPT_NUM = m.DEPT_NUM
+		AND p.POSIT_NUM = m.POSIT_NUM
+		AND
+		a.ASSIGNEE_ASSIGNEE = #{assignee_assignee}
+		AND a.TASK_NUM = #{task_num}
+		ORDER BY 1 DESC
+	</select>
+	<!-- update assignee 처리 -->
+	<update id="update_assignee" parameterType="assigneevo">
+		UPDATE
+		ASSIGNEE
+		SET
+		ASSIGNEE_COMMENT = #{assignee_comment}
+		WHERE ASSIGNEE_NUM =
+		#{assignee_num}
+	</update>
+	
+	 
+	<!-- ASSIGNEE 컬럼 -->
+	<update id="update_assignee_state" parameterType="assigneevo" >
+		UPDATE
+		ASSIGNEE
+		SET
+   		ASSIGNEE_STATE = 'Y'
+		WHERE ASSIGNEE_NUM = #{assignee_num}
+	</update>
+	
+	<!-- ASSIGNEE 상태가 모두 Y 인지 갯수 확인 -->
+	<select id="check_assignee_state" resultType="int" parameterType="assigneevo" >
+		SELECT COUNT(ASSIGNEE_STATE) AS cnt 
+       	FROM ASSIGNEE
+      	WHERE TASK_NUM = #{task_num}
+      	AND ASSIGNEE_STATE = 'N'
+	</select>
+	<!-- ASSIGNEE 상태가 모두 Y 이면 TASK 상태도 Y 로변환 -->
+	<update id="update_task_state" parameterType="assigneevo">
+		UPDATE TASK SET 
+ 		TASK_STATE = 'Y'
+ 	 	WHERE TASK_NUM = #{task_num}
+	</update>
+	
+	<!-- task assignee 테이블 row 동시 삭제 -->
+	<delete id="task_assignee_delete_procedure" statementType="CALLABLE"
+			parameterType="taskvo">
+		{ CALL TASK_ASSGINEE_DELETE_PROCEDURE  
+		    (
+		    	#{task_num, mode=IN , jdbcType=NUMERIC, javaType=int}
+		    )
+		}
+	</delete>
+	
+	
+	<!-- 
+	private String start_time;  // 시작일
+	private String end_time;    // 종료일 
+	
+	private int dept_num; 		// 부서번호
+	private int posit_num;		// 직급번호
+	
+	private String searchValue; // 검색 값
+	private String searchType;  // 검색 타입
+	
+	private String task_state; // 승인 처리 여부
+	-->
+	
+	
+	
+	<!-- cnt_task_search_assignee -->
+	<select id="cnt_task_search_assignee" parameterType="java.util.HashMap" 
+	resultType="int" >
+		SELECT
+		COUNT(*)	
+		FROM TASK t,ASSIGNEE a,MEMBER m, MEMDEPT d, MEMPOSIT p
+		WHERE t.TASK_NUM = a.TASK_NUM
+		AND m.MEM_CODE = t.TASK_ORGANIZER
+		AND d.DEPT_NUM = m.DEPT_NUM
+		AND p.POSIT_NUM = m.POSIT_NUM 
+		AND a.ASSIGNEE_ASSIGNEE = #{assignee_assignee}
+		<if test="dept_num !=null and dept_num !=0">
+		AND m.DEPT_NUM  = #{dept_num}
+		</if>
+		<if test="posit_num !=null and posit_num !=0">
+		AND m.POSIT_NUM = #{posit_num}
+		</if>
+		<if test="task_state == 'on'">
+		AND a.ASSIGNEE_STATE ='Y'
+		</if>
+		<if test="start_time != null and end_time !=null and start_time !='' and end_time !=''"> 
+		AND t.TASK_DATE BETWEEN TO_DATE(#{start_time},'YYYY-MM-DD') AND TO_DATE(#{end_time},'YYYY-MM-DD')+1
+		</if>
+		<if test="searchType !=0">
+			<choose>
+			<when test="searchType == 1">
+			AND t.TASK_TITLE LIKE '%'|| #{searchValue} || '%'
+			</when>
+			<when test="searchType == 2">
+			AND t.TASK_DESCRIPTION LIKE '%'|| #{searchValue} || '%'
+			</when>
+			<when test="searchType == 3">
+			AND t.TASK_DESCRIPTION LIKE '%'|| #{searchValue} || '%' 
+			AND t.TASK_TITLE LIKE  LIKE '%'|| #{searchValue} || '%' 
+			</when> 
+			<when test="searchType == 4">
+			AND m.MEM_NAME LIKE '%'|| #{searchValue} || '%'
+			</when> 
+			<otherwise>
+			</otherwise>    
+		</choose>
+		</if>
+	</select>
+	
+	<select id="task_search_assignee_list" parameterType="java.util.HashMap" resultType="java.util.HashMap" >
+		SELECT *
+	    FROM (SELECT ROWNUM AS RNUM, Z.* 
+	    	FROM (
+			SELECT
+			a.TASK_NUM,
+			t.TASK_TITLE,
+			a.ASSIGNEE_NUM,
+			m.MEM_NAME,
+			d.DEPT_NAME,
+			p.POSIT_NAME, 
+			TO_CHAR(t.TASK_START,'YYYY-MM-DD') as TASK_START,
+			TO_CHAR(t.TASK_END,'YYYY-MM-DD') as TASK_END,
+			a.ASSIGNEE_STATE,
+			TO_CHAR(t.TASK_DATE,'YYYY-MM-DD') as TASK_DATE
+			FROM TASK t,ASSIGNEE a,MEMBER m, MEMDEPT d, MEMPOSIT p
+			WHERE t.TASK_NUM = a.TASK_NUM
+			AND m.MEM_CODE =t.TASK_ORGANIZER
+			AND d.DEPT_NUM = m.DEPT_NUM
+			AND p.POSIT_NUM =m.POSIT_NUM
+			AND a.ASSIGNEE_ASSIGNEE = #{assignee_assignee}
+			<if test="dept_num !=null and dept_num !=0">
+			AND m.DEPT_NUM  = #{dept_num}
+			</if>
+			<if test="posit_num !=null and posit_num !=0">
+			AND m.POSIT_NUM = #{posit_num}
+			</if>
+			<if test="task_state == 'on'">
+			AND a.ASSIGNEE_STATE ='Y'
+			</if>
+			<if test="start_time != null and end_time !=null and start_time !='' and end_time !=''"> 
+			AND t.TASK_DATE BETWEEN TO_DATE(#{start_time},'YYYY-MM-DD') AND TO_DATE(#{end_time},'YYYY-MM-DD')+1
+			</if>
+			<if test="searchType !=0">
+			<choose>
+			<when test="searchType == 1">
+			AND t.TASK_TITLE LIKE '%'|| #{searchValue} || '%'
+			</when>
+			<when test="searchType == 2">
+			AND t.TASK_DESCRIPTION LIKE '%'|| #{searchValue} || '%'
+			</when>
+			<when test="searchType == 3">
+			AND t.TASK_DESCRIPTION LIKE '%'|| #{searchValue} || '%' 
+			AND t.TASK_TITLE LIKE  LIKE '%'|| #{searchValue} || '%' 
+			</when> 
+			<when test="searchType == 4">
+			AND m.MEM_NAME LIKE '%'|| #{searchValue} || '%'
+			</when>
+			<otherwise>
+			</otherwise>    
+			</choose>
+			</if>
+			ORDER BY 1 DESC
+		<![CDATA[
+			) Z
+		       	WHERE ROWNUM <= #{record_end_no})
+		WHERE RNUM >= #{record_Start_no}
+		]]>		
+	</select>
+	
+	
+	<select id="cnt_task_search_task" parameterType="java.util.HashMap" 
+	resultType="int" >
+		SELECT 
+		COUNT(*)
+		FROM TASK
+		WHERE TASK_ORGANIZER= #{task_organizer}
+		<if test="start_time != null and end_time !=null and start_time !='' and end_time !=''"> 
+		AND TASK_DATE BETWEEN TO_DATE(#{start_time},'YYYY-MM-DD') AND TO_DATE(#{end_time},'YYYY-MM-DD')+1
+		</if>
+		<if test="task_state == 'on'">
+			AND TASK_STATE ='Y'
+		</if>
+		<if test="searchValue !=null and searchType != 0">
+			<choose>
+			<when test="searchType == 1">
+			AND TASK_TITLE LIKE '%'|| #{searchValue} || '%'
+			</when>
+			<when test="searchType == 2">
+			AND TASK_DESCRIPTION LIKE '%'|| #{searchValue} || '%'
+			</when>
+			<when test="searchType == 3">
+			AND TASK_DESCRIPTION LIKE '%'|| #{searchValue} || '%' 
+			AND TASK_TITLE LIKE  LIKE '%'|| #{searchValue} || '%' 
+			</when>
+		</choose>
+		</if>
+	</select>
+	
+	
+	<select id="task_search_task_list" parameterType="java.util.HashMap" 
+	resultType="taskvo" >
+		SELECT *
+	    FROM (SELECT ROWNUM AS RNUM, Z.* 
+	    	FROM ( 
+					SELECT TASK_NUM as task_num,
+					TASK_TITLE as task_title,
+					TASK_DESCRIPTION as task_description,
+					TO_CHAR(TASK_START,'YYYY-MM-DD') as task_start,
+					TO_CHAR(TASK_END,'YYYY-MM-DD') as task_end,
+					TASK_STATE as task_state,
+					TASK_ORGANIZER as
+					task_organizer,
+					TO_CHAR(TASK_DATE,'YYYY-MM-DD') as task_date
+					FROM
+					TASK
+					WHERE TASK_ORGANIZER= #{task_organizer}
+					<if test="task_state == 'on'">
+					AND TASK_STATE ='Y'
+					</if> 
+					<if test="start_time != null and end_time !=null and start_time !='' and end_time !=''"> 
+					AND TASK_DATE BETWEEN TO_DATE(#{start_time},'YYYY-MM-DD') AND TO_DATE(#{end_time},'YYYY-MM-DD')+1
+					</if>
+					<if test="searchValue !=null and searchType != 0">
+						<choose>
+						<when test="searchType == 1">
+						AND TASK_TITLE LIKE '%'|| #{searchValue} || '%'
+						</when>
+						<when test="searchType == 2">
+						AND TASK_DESCRIPTION LIKE '%'|| #{searchValue} || '%'
+						</when>
+						<when test="searchType == 3">
+						AND TASK_DESCRIPTION LIKE '%'|| #{searchValue} || '%' 
+						AND TASK_TITLE LIKE  LIKE '%'|| #{searchValue} || '%' 
+						</when>
+					</choose>
+					</if>
+					ORDER BY 1 DESC
+		<![CDATA[ 			
+				) Z
+		       	WHERE ROWNUM <= #{record_end_no})
+		WHERE RNUM >= #{record_Start_no}
+		]]>			
+	</select>
+	
+	
+</mapper>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="posit">
+	
+	 <select id="list" resultType="java.util.HashMap">
+ 		SELECT 
+  			POSIT_NUM as posit_num,
+ 			POSIT_NAME as posit_name
+		FROM MEMPOSIT
+ 	</select>
+ 	
+ 	<insert id="insert" parameterType="String" >
+ 		INSERT INTO MEMPOSIT 
+ 		VALUES(MemPosit_seq.nextVal,#{posit_name})
+ 	</insert>
+ 		
+ 	<update id="update" parameterType="java.util.HashMap">
+ 		UPDATE MEMPOSIT SET 
+ 		POSIT_NAME = #{posit_name}
+ 		WHERE POSIT_NUM = #{posit_num}  
+ 	</update>
+ 	
+ 	<delete id="delete" parameterType="int">
+ 		DELETE FROM MEMPOSIT 
+ 		WHERE POSIT_NUM = #{posit_num}
+ 	</delete>
+ 	
+</mapper>

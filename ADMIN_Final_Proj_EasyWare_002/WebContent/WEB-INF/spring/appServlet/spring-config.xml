@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.2.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+	<!-- ADMIN FINAL PROJECT SETTING -->
+	<!-- 3. Bean 세팅 -->
+	
+	<!-- 어노테이션 인식 세팅 /루트 상태 경로 인식 -->
+	<mvc:annotation-driven/>
+	<!-- 스프링 MVC 세팅 시작 -->
+	<context:component-scan base-package="com.easyware" annotation-config="true" />
+	<!-- 일반 서블릿 요청을 받아들임, jsp 뿐만 아니라 다른 자원들도 가져가기 위해 설정 -->
+	<mvc:default-servlet-handler/>
+	<!-- 자원 경로 지정하기  -->
+	<mvc:resources location="/resources/" mapping="/resources/**" />
+	
+	
+	
+	<!-- JDBC 연동 시작 -->
+	<!-- dataSource -->
+	<bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="java:comp/env/jdbc/myora"></property>
+	</bean>
+	
+	<!-- Mybatis SqlSessionFatory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:config/config-mybatis.xml"/>
+		<property name="mapperLocations" value="classpath*:mapper/*.xml"></property>
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	<!-- Mybatis SqlSessionTemplate -->
+	<bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory"/>		
+	</bean>
+	
+	<!-- Transaction Manager 트랜 잭션을 처리할 트랜잭션 매니저 객체를 생성-->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- Transaction Anotation 을 사용하는 부분에 트랜잭션 처리 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	
+	<!-- PoiResolver -->
+	<bean id="PoiResolver"
+		class="org.springframework.web.servlet.view.ResourceBundleViewResolver">
+		<property name="order" value="2" />
+		<property name="basename" value="views" />
+	</bean>
+
+	<!-- 웹서버가 시작될때  설정 파일을 로딩함 -->
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/views/"></property>
+		<property name="suffix" value=".jsp"></property>
+		<property name="order" value="1" />
+	</bean>
+   
+	<!-- Tiles 설정 시작-->
+	<bean id="tilesviewResolver" 
+    	class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+    <property name="viewClass" value="org.springframework.web.servlet.view.tiles3.TilesView"/>
+    	<property name="order"  value="0"/>
+	</bean>
+	
+	<bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles3.TilesConfigurer">
+    <property name="definitions">
+        <list>
+            <value>/WEB-INF/tiles/tiles-definitions.xml</value>
+        </list>
+    </property>
+    </bean>
+    <!-- Tiles 설정 끝-->
+   
+  	<!-- multipartResolver 는 Bean 이름 상수로 지정되어 있기에  
+  		 id 명이 상수에 선언된 것과 
+  		 일치해야함 
+  	-->
+	<bean id="multipartResolver" 
+	class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
+
+
+
+
+
+	<!-- 구글 메일 IMAP 사용 (메일전송기능) -->
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="smtp.gmail.com" />
+		<property name="port" value="465" />
+		<property name="protocol" value="smtp"></property>
+		<property name="defaultEncoding" value="utf-8" />
+		<property name="username" value="kosta.egroup@gmail.com" />
+		<property name="password" value="qefdnpauohvynmfh" />
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.auth">true</prop>
+				<prop key="mail.smtp.ssl.enable">true</prop>
+				<prop key="mail.smtp.starttls.enable">true</prop>
+				<prop key="mail.smtp.ssl.trust">smtp.gmail.com</prop>
+				<prop key="mail.smtp.sendpartial">true</prop>
+				<prop key="mail.debug">true</prop>
+				<prop key="mail.smtp.connectiontimeout">60000</prop>
+				<prop key="mail.smtp.timeout">60000</prop>
+			</props>
+		</property>
+
+	</bean>
+
+	<!-- 스케줄러 어노테이션 -->
+	<task:annotation-driven executor="executor" scheduler="TimeCard_Scheduled"/>
+	<!-- TaskExecutor(스케줄러 객체를 관리하는 Thread Pool) -->
+	<task:executor id="executor" pool-size="3" keep-alive="5" />
+	<task:scheduler id="TimeCard_Scheduled" pool-size="10"/>
+
+
+
+</beans>

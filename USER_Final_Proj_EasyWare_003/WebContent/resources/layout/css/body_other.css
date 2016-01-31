@@ -1,0 +1,349 @@
+/**
+* 작업 날짜 : 2015. 12. 3.
+* 구현 내용 :   
+*  
+* @author By kosta 
+*/
+@CHARSET "UTF-8";
+
+	.color_red{color:red;}
+	.sched_main #sns_sendBtn{
+	color:white;
+	border-style: solid;
+	border-color: white;  
+	border-width: 3px;
+	text-align: center;
+	min-width: 25px;
+	line-height: 1.5;
+	font-size: 15px;
+	border-radius: 4px;
+	}
+	.sched_main #sns_sendBtn:hover{
+	color: #2AB9D0; 
+	border-color: white; 
+	background: white;
+	}
+	
+	.sched_main .ok_sched{
+		color:#C1BCBC;
+	}
+	.ok_sched:hover{
+		color:green;
+	}
+	.sched_main .cancel_sched{
+		color:#C1BCBC;
+
+	}
+	.cancel_sched:hover{
+		color: red;
+		background-color: tr
+	}
+	
+	#input_form input{
+	font-size: 13px;
+	line-height:20px;
+	width: 90%;
+	height:120%;
+	background-color: white;
+	}
+	.sched_main #input_form textarea{
+	background-color: white;
+	}
+	.sched_main .sched_bar{
+		height: 70px;
+		background: #2AB9D0;
+		width: 100%;
+		}
+	
+	.sched_main .sched{border-radius:8px;
+			height: 500px; 
+			background: #2AB9D0;
+		    margin: 0 4px;
+		    padding:7px;
+		    border-width: 1px;border-color:#2AB9D0;
+		    overflow-y: hidden;
+		    }
+	.sched_main .sched_custom{border-radius:8px;
+			background: #2AB9D0;
+		    border-width: 1px;border-color:#2AB9D0;
+		    overflow-y: hidden;
+		    }
+	.sched_main .sched_cont{
+			border-radius:8px;
+			height: 400px;
+			background: white;
+			margin:auto;
+			width: 100%;
+			overflow-y: auto;
+		    overflow-x: hidden;
+		   
+		    }
+	.sched_main .sched_cont_bottom{
+		height: 50px;
+		background: #2AB9D0;
+	}
+	.sched_main .sched_cont_top{
+		padding:8px 34px 8px 10px;
+		position:relative;
+		height: 50px;
+		background: #2AB9D0;
+	}
+	.sched_main .card{
+		width 100%;
+	    overflow: hidden;
+	    word-break: break-all;
+	    padding: 8px;
+	    position: relative;
+	    z-index: 10;
+		background: #C8E7FF;
+		border-radius:8px;
+		opacity: 0;
+		pointer-events:auto; 
+		margin-bottom: 7px;
+		 animation: 
+		        openspace .3s ease forwards, 
+		        restored-item-animation .5s .3s cubic-bezier(.14,.25,.52,1.56) forwards;
+		-webkit-transition: all 0.5s ease-out;
+    	transition: all 0.5s ease-out;
+		}
+	.sched_main .card:hover{
+		background: #12D4F3;
+	}
+	.sched_card{
+	height: 50px;
+	word-break: break-all;
+		opacity: 0;
+		 animation: 
+		        openspace .3s ease forwards, 
+		        restored-item-animation .5s .3s cubic-bezier(.14,.25,.52,1.56) forwards;
+	}
+	.sched_main .alarm_card{
+		width: 100%;
+	    overflow: auto;
+	    padding: 8px;
+	    position: relative;
+	    z-index: 10;
+		background: #FFBEBE;
+		border-radius:4px;
+		opacity: 0;
+		margin-bottom: 7px;
+		 animation: 
+		        openspace .3s ease forwards, 
+		        restored-item-animation .5s .3s cubic-bezier(.14,.25,.52,1.56) forwards;
+		-webkit-transition: all 0.5s ease-out;
+    	transition: all 0.5s ease-out;
+		}
+	.sched_main	.alarm_card:hover{
+		background:#FF6C6C;
+		}
+	.sched_main .card_content{width: 100%;}
+	.sched_main .pull_right {
+    float: right;
+	}
+	
+	
+	.sched_main .check{box-shadow:0px;background-color:#2AB9D0;-webkit-box-shadow: 0px 0px 0px; }
+	.sched_main #sched2{height: 300px;}
+	
+	.sched_main h4{color:white;
+	    display: inline;
+	    font-size: 15px;
+	    line-height: 18px;
+	    margin: 0;
+	    overflow: hidden;
+   		text-overflow: ellipsis;
+ 	  	word-wrap: break-word;
+	}
+	.icon{
+	text-decoration: none;
+	color:white;
+	}
+	.icon:hover{font-size: 15px;color:#0012FF;}
+	.sched_main a{
+	text-decoration: none;
+	font-size: 13px;
+	cursor:pointer;
+	}
+	.sched_main a:hover{
+	text-decoration: none;
+	}
+	.sched_main .input_form{height: 0px;padding: 0px;}
+	.sched_main .list_form{height: 0px;padding: 0px;}
+@keyframes openspace {
+    to {
+       /*  height: auto; */
+    }
+}
+@keyframes restored-item-animation {
+    0% {
+        opacity: 0;
+         transform: translateX(300px);
+    }
+    70% {
+        opacity: 1;
+        transform: translateX(-50px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+#sched_table tr{
+height: 50px;
+-webkit-transition: all 0.5s ease-out;
+    	transition: all 0.5s ease-out;
+}
+#sched_table tr:hover{
+background: #C4EFF9;
+}
+#sched_table tr div{
+height: 50px;
+overflow: hidden;
+margin-top: 0px;
+}
+#sched_table tr div:hover{
+height: auto;
+}
+.sched_main{
+width: auto;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 스케줄러 변경 */
+ 
+.sched_main2 h4{color:white;
+	    display: inline;
+	    font-size: 15px;
+	    line-height: 18px;
+	    margin: 0;
+	    overflow: hidden;
+   		text-overflow: ellipsis;
+ 	  	word-wrap: break-word;
+	}
+.sched_main2 #input_form textarea{
+	background-color: white;
+	}
+	.sched_main2 .sched_bar2{
+		height: 70px;
+		background: #2AB9D0;
+		width: 100%;
+		}
+	
+	.sched_main2 .sched2{border-radius:4px;
+			height: 500px; 
+			background: #2AB9D0;
+		    margin: 0 4px;
+		    padding:7px;
+		    border-width: 1px;border-color:#2AB9D0;
+		    overflow-y: hidden;
+		    }
+	.sched_main2 .sched_custom2{border-radius:4px;
+			background: #2AB9D0;
+		    border-width: 1px;border-color:#2AB9D0;
+		    overflow-y: hidden;
+		    }
+	.sched_main2 .sched_cont2{
+			border-radius:4px;
+			height: 400px;
+			background: white;
+			margin:auto;
+			width: 100%;
+			overflow-y: auto;
+		    overflow-x: hidden;
+		   
+		    }
+	.sched_main2 .sched_cont_bottom2{
+		height: 50px;
+		background: #2AB9D0;
+	}
+	.sched_main2 .sched_cont_top2{
+		padding:8px 34px 8px 10px;
+		position:relative;
+		height: 50px;
+		background: #2AB9D0;
+	}
+	.sched_main2 .card2{
+		width 100%;
+	    overflow: hidden;
+	    word-break: break-all;
+	    padding: 8px;
+	    position: relative;
+	    z-index: 10;
+		background: #C8E7FF;
+		border-radius:4px;
+		opacity: 0;
+		pointer-events:auto; 
+		margin-bottom: 7px;
+		 animation: 
+		        openspace .3s ease forwards, 
+		        restored-item-animation .5s .3s cubic-bezier(.14,.25,.52,1.56) forwards;
+		-webkit-transition: all 0.5s ease-out;
+    	transition: all 0.5s ease-out;
+		}
+	.sched_main2 .card2:hover{
+		background: #12D4F3;
+	}
+	.sched_card2{  
+	height: 50px;
+	word-break: break-all;
+		opacity: 0;
+		 animation: 
+		        openspace .3s ease forwards, 
+		        restored-item-animation .5s .3s cubic-bezier(.14,.25,.52,1.56) forwards;
+	}
+	.sched_main2 .alarm_card2{
+		width: 100%;
+	    overflow: auto;
+	    padding: 8px;
+	    position: relative;
+	    z-index: 10;
+		background: #FFBEBE;
+		border-radius:4px;
+		opacity: 0;
+		margin-bottom: 7px;
+		 animation: 
+		        openspace .3s ease forwards, 
+		        restored-item-animation .5s .3s cubic-bezier(.14,.25,.52,1.56) forwards;
+		-webkit-transition: all 0.5s ease-out;
+    	transition: all 0.5s ease-out;
+		}
+		
+		
+		
+		
+		
+#sched_table2 tr{
+height: 50px;
+-webkit-transition: all 0.5s ease-out;
+    	transition: all 0.5s ease-out;
+}
+#sched_table2 tr:hover{
+background: #C4EFF9;
+}
+#sched_table2 tr div{
+height: 50px;
+overflow: hidden;
+margin-top: 0px;
+}
+#sched_table2 tr div:hover{
+height: auto;
+}
+.sched_main2{
+width: auto;
+}
+		

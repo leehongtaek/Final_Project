@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+      
+<tiles-definitions>  	
+  	<!-- USER MODE  --> 
+  	<!-- Tiles 선언 기본 템플릿 선언 -->
+  	<definition name="/" template="/WEB-INF/views/user/layout/layout.jsp" >
+  		<put-attribute name="header" 
+  			value="/WEB-INF/views/user/layout/header.jsp" />
+  		<put-attribute name="menu" 
+  			value="/WEB-INF/views/user/layout/menu.jsp" />
+  		<put-attribute name="body" 
+  			value="/WEB-INF/views/user/layout/body.jsp" />
+  		<put-attribute name="footer" 
+  			value="/WEB-INF/views/user/layout/footer.jsp" />
+  	</definition>
+  	
+  	<!-- TimeCard MENU -->
+  	<definition name="/timecard" extends="/">
+  		<put-attribute name="body" value="/WEB-INF/views/user/timecard/timecard.jsp"/>
+  	</definition>
+  	
+  	<!-- Contact MENU -->
+  	<definition name="/contact/*" extends="/">
+       		<put-attribute name="body" value="/WEB-INF/views/user/contact/{1}.jsp"/>	
+    </definition>
+    
+    <!-- report MENU -->
+  	<definition name="/report/*" extends="/">
+       		<put-attribute name="body" value="/WEB-INF/views/user/report/{1}.jsp"/>	
+    </definition>
+    
+    <!-- report cancel --> 
+    <definition name="/report/report_appr_cancel" template="/WEB-INF/views/user/report/report_appr_cancel.jsp">
+       		<put-attribute name="body" value="/WEB-INF/views/user/report/report_appr_cancel.jsp"/>	
+    </definition>
+    
+    
+    <!-- board MENU -->
+  	<definition name="/board/*" extends="/">
+       		<put-attribute name="body" value="/WEB-INF/views/user/board_L/{1}.jsp"/>	
+    </definition>
+    
+    <!-- board MENU -->
+  	<definition name="/boardTest/*" extends="/">
+       		<put-attribute name="body" value="/WEB-INF/views/user/boardTest/{1}.jsp"/>	
+    </definition>
+    
+    <!-- roomrent MENU -->
+  	<definition name="/roomrent/*" extends="/">
+       		<put-attribute name="body" value="/WEB-INF/views/user/room_rent/{1}.jsp"/>	
+    </definition>
+    
+    <!-- scheduler MENU -->
+  	<definition name="/scheduler/*" extends="/">
+       		<put-attribute name="body" value="/WEB-INF/views/user/scheduler/{1}.jsp"/>	
+    </definition>
+    
+    <!-- SNS menu -->
+  	<definition name="/sns/*" extends="/">
+       		<put-attribute name="body" value="/WEB-INF/views/user/sns/{1}.jsp"/>	
+    </definition>
+  	
+  	
+  	
+  	<!-- TASK 사원 관리 -->
+  	<definition name="/task/*" extends="/">
+  		<put-attribute name="body" value="/WEB-INF/views/user/task/task_{1}.jsp"></put-attribute>
+  	</definition>
+  	
+  	
+  	<!-- personManager 사원 관리 -->
+  	<definition name="/personManager" extends="/">
+  		<put-attribute name="body" value="/WEB-INF/views/admin/person_manage/person_manage_list.jsp"></put-attribute>
+  	</definition>
+  	<definition name="/personManager/detail" extends="/">
+  		<put-attribute name="body" value="/WEB-INF/views/admin/person_manage/person_manage_detail.jsp"></put-attribute>
+  	</definition>
+  	<definition name="/personManager/search" extends="/">
+  		<put-attribute name="body" value="/WEB-INF/views/admin/person_manage/person_manage_search.jsp"></put-attribute>
+  	</definition>
+  	
+  	
+  	<!-- Profile 페이지 -->
+  	<definition  name="/profile" extends="/">
+  		<put-attribute name="body" value="/WEB-INF/views/common/mypage/profile.jsp"></put-attribute>
+  	</definition>
+  	<!-- Profile 페이지 -->
+  	<definition  name="/setting" extends="/">
+  		<put-attribute name="body" value="/WEB-INF/views/common/mypage/setting.jsp"></put-attribute>
+  	</definition>
+  	
+  	
+  	
+  	<!-- 인텍스 페이지에서 로그인 처리 -->
+  	<definition name="/index" template="/WEB-INF/views/common/index.jsp" />
+  	<definition name="/denied" template="/WEB-INF/views/common/error/denied.jsp" />
+  	<definition name="/logout" template="/WEB-INF/views/common/login/logout.jsp" />
+  	<definition name="/logout-success" template="/WEB-INF/views/common/login/logout-success.jsp" />
+  	<!-- 회원 가입 , 회원 가입 성공 -->
+  	<definition name="/signup" template="/WEB-INF/views/common/sign/signup.jsp" />
+  	<definition name="/signup_result" template="/WEB-INF/views/common/sign/signup_result.jsp" />
+  	<!-- 에러페이지 -->
+  	<definition name="/error/*" template="/WEB-INF/views/common/error/error_{1}.jsp" />
+  	<!-- 지원 페이지 -->
+  	<definition name="/user/passwordSupport" template="/WEB-INF/views/common/support/passwordSupport.jsp" />
+  	
+  	<!-- 채팅 페이지 -> 부서 채팅으로 기능으로 대신 구현하여 현재는 이 페이지는 WebRtc 채팅을 구현하는 페이지로 변경 -->
+  	<definition name="/chat" extends="/" >
+  		<put-attribute name="body" value="/WEB-INF/views/user/websoket/chat.jsp" />
+  	</definition> 
+</tiles-definitions>

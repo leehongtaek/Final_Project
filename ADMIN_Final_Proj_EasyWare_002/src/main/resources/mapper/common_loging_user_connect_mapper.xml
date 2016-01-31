@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="logging_user_connect">
+
+	<select id="cnt_list" resultType="int">
+		SELECT COUNT(*) 
+		FROM LOG_CONNECT
+	</select>
+	
+	<select id="list" parameterType="java.util.HashMap" resultType="loggingconnectvo">
+		<![CDATA[ 
+		SELECT *
+	    FROM (SELECT ROWNUM AS RNUM, Z.* 
+	    	FROM (
+	    	
+			SELECT * 
+			FROM LOG_CONNECT
+			ORDER BY LOG_DATE DESC
+			
+			) Z
+		    WHERE ROWNUM <= #{record_end_no})
+		WHERE RNUM >= #{record_Start_no}
+		]]>				
+	</select>
+	
+	<select id="cnt_search_list" parameterType="java.util.HashMap" resultType="int">
+		SELECT COUNT(*) 
+		FROM LOG_CONNECT
+		WHERE 1=1           
+		<if test="start_time != null and start_time !='' and end_time !=null and end_time !=''">
+		AND LOG_DATE BETWEEN  TO_DATE(#{start_time},'YYYY-MM-DD') AND TO_DATE(#{end_time},'YYYY-MM-DD')+1
+		</if>
+		<if test="mem_id != null and mem_id !=''">
+		AND MEM_ID = #{mem_id}
+		</if>    
+		<if test="log_type != '3' and log_type !=3 and log_type !=''">
+		AND LOG_TYPE = #{log_type}
+		</if>
+	</select>
+	
+	<select id="search_list" parameterType="java.util.HashMap" resultType="loggingconnectvo">
+		SELECT *
+	    FROM (SELECT ROWNUM AS RNUM, Z.* 
+	    	FROM (
+			SELECT *  
+			FROM LOG_CONNECT     
+			WHERE 1=1                  
+			<if test="start_time != null and start_time !='' and end_time !=null and end_time !=''">
+			AND LOG_DATE BETWEEN  TO_DATE(#{start_time},'YYYY-MM-DD') AND TO_DATE(#{end_time},'YYYY-MM-DD')+1
+			</if>
+			<if test="mem_id != null and mem_id !=''">
+			AND MEM_ID = #{mem_id}
+			</if>                                    
+			<if test="log_type != '3' and log_type !=3 and log_type !=''">
+			AND LOG_TYPE = #{log_type}
+			</if>
+			ORDER BY LOG_DATE DESC
+		<![CDATA[ 
+			) Z
+		    WHERE ROWNUM <= #{record_end_no})
+		WHERE RNUM >= #{record_Start_no}
+		]]>		
+	</select>
+	
+	
+
+	<!-- login 성공 -->
+	<insert id="login" parameterType="membervosecurity">
+		INSERT INTO LOG_CONNECT VALUES(
+	    LOG_CONNECT_SEQ.NEXTVAL,
+	    '0' ,
+	    #{mem_code},
+	    #{mem_id},
+	    #{mem_name},
+	    #{mem_ip},
+	    SYSDATE
+	    )
+	</insert>
+	
+	<!-- 정상 로그아웃 -->
+	<insert id="logout" parameterType="membervosecurity">
+		INSERT INTO LOG_CONNECT VALUES(
+	    LOG_CONNECT_SEQ.NEXTVAL,
+	    '1' ,
+	    #{mem_code},
+	    #{mem_id},
+	    #{mem_name},
+	    #{mem_ip},
+	    SYSDATE
+	    )
+	</insert>
+	
+	<!-- 로그인 실패 -->
+	<insert id="login_fail" parameterType="membervosecurity">
+		INSERT INTO LOG_CONNECT(
+		LOG_ID,
+		LOG_TYPE, 
+		MEM_ID,
+		MEM_IP,
+		LOG_DATE
+		) VALUES(
+	    LOG_CONNECT_SEQ.NEXTVAL,
+	    '2' ,
+	    #{mem_id},
+	    #{mem_ip},
+	    SYSDATE
+	    )
+	</insert>
+	
+</mapper>

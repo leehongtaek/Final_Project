@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!--  Member 총 15개의 컬럼
+	private String mem_code; 		// 1.  사원번호
+	private String mem_id;			// 2.  아이디
+	private String mem_pwd;			// 3.  패스워드
+	private String mem_name;		// 4.  이름
+	private int posit_num;			// 5.  직급번호
+	private int dept_num;			// 6.  부서번호
+	private String mem_tel;			// 7.  전화번호
+	private String mem_email;		// 8.  이메일
+	private String mem_hiredate; 	// 9. 입사일
+	private String mem_birthdate; 	// 10. 생년월일
+	private String mem_post;		// 11. 우편번호
+	private String mem_roadaddr;	// 12. 도로명주소
+	private String mem_jibunaddr;	// 13. 지번 주소
+	private String mem_detailaddr;	// 14. 상세주소
+	private String mem_state;  		// 15. 멤버 상태
+); -->
+<mapper namespace="person">
+	
+	
+	<!-- 모든 사원 사원수 가져오기  -->
+ 	<select id="totalcnt" resultType="int">
+ 		SELECT COUNT(*) from MEMBER_INFO
+ 	</select>	
+	
+	<!-- 사원 리스트 가져오기 -->
+	<select id="list" resultType="personvo" parameterType="java.util.HashMap" >
+	<![CDATA[
+	SELECT *
+	    FROM (SELECT ROWNUM AS RNUM, Z.* 
+	    	  FROM (	    	  
+	    	  	SELECT
+	    	  		MEM_CODE,
+					MEM_ID, 
+					MEM_PWD, 
+					MEM_NAME, 
+					DEPT_NUM, 
+					DEPT_NAME, 
+					POSIT_NUM, 
+					POSIT_NAME, 
+					MEM_TEL, 
+					MEM_EMAIL, 
+					TO_CHAR(MEM_HIREDATE,'YYYY-MM-DD') AS MEM_HIREDATE, 
+					TO_CHAR(MEM_BIRTHDATE,'YYYY-MM-DD') AS MEM_BIRTHDATE, 
+					MEM_POST, 
+					MEM_ROADADDR, 
+					MEM_JIBUNADDR, 
+					MEM_DETAILADDR, 
+					MEM_STATE 
+		    	FROM MEMBER_INFO  
+	    		  ) Z
+	    WHERE ROWNUM <= #{record_end_no})
+	WHERE RNUM >= #{record_Start_no}
+	]]>
+ 	</select>	
+	
+	<!-- 검색된 데이터의 총합  -->
+	<select id="searchTotalcnt" resultType="int">
+		SELECT COUNT(*) FROM MEMBER_INFO
+		<if test="searchType != null">
+			<where>
+				<choose>
+					<when test="searchType == 1">
+						MEM_NAME LIKE '%'|| #{ searchValue} || '%'
+					</when>
+					<when test="searchType == 2">
+						DEPT_NAME LIKE '%'|| #{ searchValue} || '%'
+					</when>
+					<when test="searchType == 3">
+						POSIT_NAME LIKE '%'|| #{ searchValue} || '%'
+					</when>
+					<otherwise></otherwise>
+				</choose>
+			</where>
+		</if>
+		ORDER BY 1 DESC
+	</select>
+	 
+	
+	<!-- 검색된 데이터를 검색하는 쿼리문 -->
+	<sql id="search_sql">
+		SELECT
+			MEM_CODE,  
+			MEM_ID, 
+			MEM_NAME,  
+			DEPT_NUM,  
+			DEPT_NAME, 
+			POSIT_NUM,      
+			POSIT_NAME,
+			TO_CHAR(MEM_HIREDATE,'YYYY-MM-DD') AS MEM_HIREDATE,
+			MEM_STATE 
+		FROM MEMBER_INFO
+		<if test="searchType != null">
+			<where>
+				<choose>
+					<when test="searchType == 1">
+						MEM_NAME LIKE '%'|| #{searchValue} || '%'
+					</when>
+					<when test="searchType == 2">
+						DEPT_NAME LIKE '%'|| #{searchValue} || '%'
+					</when>
+					<when test="searchType == 3">
+						POSIT_NAME LIKE '%'|| #{searchValue} || '%'
+					</when>
+					<otherwise></otherwise>
+				</choose>
+			</where>
+		</if>
+		ORDER BY 1 DESC
+	</sql>
+	<!-- 검색 쿼리를 삽입하여 페이징 처리하는 쿼리문  -->
+	<select id="searchList" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+		SELECT * 
+			FROM (SELECT ROWNUM as RNUM, Z.*
+				FROM(<include refid="search_sql"/>) Z
+	<![CDATA[ 
+				WHERE ROWNUM <=#{record_end_no})
+		WHERE RNUM >=#{record_Start_no}
+	]]>
+	</select>
+	
+	
+	
+	<!-- 사원 관리에서 한 사원의 상세정보 조회   -->
+ 	<select id="info" resultType="personvo" parameterType="String">
+ 			select 
+ 					MEM_CODE,  
+					MEM_ID, 
+					MEM_PWD, 
+					MEM_NAME, 
+					DEPT_NUM, 
+					DEPT_NAME, 
+					POSIT_NUM, 
+					POSIT_NAME, 
+					MEM_TEL, 
+					MEM_EMAIL, 
+					TO_CHAR(MEM_HIREDATE,'YYYY-MM-DD') AS MEM_HIREDATE, 
+					TO_CHAR(MEM_BIRTHDATE,'YYYY-MM-DD') AS MEM_BIRTHDATE, 
+					MEM_POST, 
+					MEM_ROADADDR, 
+					MEM_JIBUNADDR, 
+					MEM_DETAILADDR, 
+					MEM_STATE  
+ 			from MEMBER_INFO 
+ 			where mem_code = #{mem_code}
+ 	</select>	
+ 		
+	
+	<!-- 회원 정보 ID 중복 CHECK -->
+ 	<select id="idcheck" parameterType="String" resultType="int">
+ 		select count(*) from MEMBER where mem_id = #{mem_id}
+ 	</select>	
+ 	
+	
+	
+	<!-- 회원 정보 INSERT  -->
+ 	<insert id="add" parameterType="personvo">
+ 		insert into MEMBER (
+ 		MEM_CODE,
+		MEM_ID,
+		MEM_PWD,
+		MEM_NAME,
+		DEPT_NUM,
+		POSIT_NUM,
+		MEM_TEL,
+		MEM_EMAIL,
+		MEM_HIREDATE,
+		MEM_BIRTHDATE,
+		MEM_POST,
+		MEM_ROADADDR,
+		MEM_JIBUNADDR,
+		MEM_DETAILADDR) 
+ 		values (member_code_generator(#{mem_hiredate},#{mem_birthdate}),
+ 		#{mem_id},
+ 		#{mem_pwd},
+ 		#{mem_name},
+ 		#{posit_num},
+ 		#{dept_num},
+ 		#{mem_tel},
+ 		#{mem_email},
+ 		TO_DATE(#{mem_hiredate},'YYYY-MM-DD'),
+ 		TO_DATE(#{mem_birthdate},'YYYY-MM-DD'),
+ 		#{mem_post},
+ 		#{mem_jibunaddr},
+ 		#{mem_detailaddr},
+ 		#{mem_birthdate}
+ 		)
+ 	</insert>
+ 	
+ 	
+
+ 	
+ 	<!-- 사원 정보 에서 수정할 정보를  UPDATE -->
+ 	<update id="update" parameterType="personvo">
+ 		UPDATE MEMBER SET
+ 		MEM_PWD = #{mem_pwd},
+ 		MEM_NAME = #{mem_name},
+ 		MEM_TEL = #{mem_tel},
+ 		DEPT_NUM = #{dept_num},
+ 		POSIT_NUM =#{posit_num},
+ 		MEM_EMAIL = #{mem_email},
+ 		MEM_BIRTHDATE = TO_DATE(#{mem_birthdate},'YYYY-MM-DD' ) ,
+ 		MEM_HIREDATE = TO_DATE(#{mem_hiredate},'YYYY-MM-DD' ),
+ 		MEM_POST = #{mem_post},
+ 		MEM_ROADADDR = #{mem_roadaddr},
+ 		MEM_JIBUNADDR = #{mem_jibunaddr},
+ 		MEM_DETAILADDR = #{mem_detailaddr},
+ 		MEM_STATE = #{mem_state}
+ 		WHERE MEM_CODE = #{mem_code}
+ 	</update>	
+ 	
+ 	
+ 	
+ 	
+</mapper>

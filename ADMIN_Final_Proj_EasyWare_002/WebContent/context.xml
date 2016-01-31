@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+	<Resource name="jdbc/myora"
+	type ="javax.sql.DataSource"
+	auth = "Container"
+	driverClassName= "oracle.jdbc.driver.OracleDriver"
+	url="jdbc:oracle:thin:@localhost:1521:xe"
+	username = "kosta"
+	password = "kosta1234"
+	maxActive="20"
+	maxIdle ="10"
+	maxWait = "-1"
+	/>
+	<!-- 
+	maxActive 최대 컨넥션 갯수, 
+	maxIdle 사용하지 않고 풀에 저장될 수 있는  커넥션 객수 
+	maxWait ="-1" 커넥션 사용이 많아질때 커넷션 풀이 비어있을때 대기시간(1/1000초)
+	-1 은 무한대
+	-->
+</Context>

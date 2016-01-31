@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- TIME TABEL TABLE 구조 TC_NUM TCWORK_START TCWORK_END TCGOOUT_START TCGOOUT_END 
+	TC_STATE TCETC MEM_CODE -->
+<mapper namespace="contact">
+	
+	
+	<select id="total" resultType="int">
+		select count(*) from MEMBER
+	</select>
+
+	<select id="paging" resultType="java.util.HashMap" parameterType="java.util.HashMap">
+	<![CDATA[
+		select * from (select rownum as rnum, Z.*
+		from(
+			select p.POSIT_NAME as POSIT_NAME,
+				   m.MEM_NAME as MEM_NAME,
+				   d.DEPT_NAME as DEPT_NAME,
+				   m.MEM_TEL as MEM_TEL,
+				   m.MEM_EMAIL as MEM_EMAIL,
+				   m.MEM_ROADADDR as MEM_ROADADDR,
+			  	   m.MEM_DETAILADDR as MEM_DETAILADDR
+			from MEMBER m, MEMDEPT d, MEMPOSIT p
+			where m.DEPT_NUM = d.DEPT_NUM
+			and m.POSIT_NUM = p.POSIT_NUM
+		) Z
+		where rownum <=#{record_end_no})
+		where rnum >=#{record_Start_no}
+		]]>
+	</select>
+
+
+	<!-- 직급,부서,사원이름,사원전화번호 select  -->
+	<select id="listAll" resultType="java.util.HashMap">
+		select p.POSIT_NAME as POSIT_NAME,
+			   m.MEM_NAME as MEM_NAME,
+			   d.DEPT_NAME as DEPT_NAME,
+			   m.MEM_TEL as MEM_TEL,
+			   m.MEM_ROADADDR as MEM_ROADADDR,
+			   m.MEM_DETAILADDR as MEM_DETAILADDR 
+		from MEMBER m, MEMDEPT d, MEMPOSIT p
+		where m.DEPT_NUM = d.DEPT_NUM
+		and m.POSIT_NUM = p.POSIT_NUM
+	</select>
+
+
+</mapper>

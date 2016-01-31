@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="file" >
+	<insert id="file_Insert" parameterType="filevo">
+		insert into fileinfo values(Fileinfo_seq.nextVal, #{file_name},
+		#{file_path}, #{file_type}, #{file_size}, #{mem_code})
+	</insert>
+ 	<select id="file_List" resultType="filevo">
+ 		select file_num, file_name, file_path, file_type, file_size from fileinfo order by 1 desc
+ 	</select>
+ 	<update id="file_Modify" parameterType="filevo">
+ 		update fileinfo set file_name = #{file_name}, file_path = #{file_path},
+ 		file_type = #{file_type}, file_type = #{file_type} where file_num = #{file_num}
+ 	</update>
+ 	<delete id="file_Delete" parameterType="int">
+ 		delete from fileinfo where file_num = #{file_num}
+ 	</delete>
+</mapper>

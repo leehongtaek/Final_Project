@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!--SQL -->
+<mapper namespace="board_admin">
+
+	<!--모든 게시판 수 -->
+	<select id="totalcnt" resultType="int">
+		SELECT COUNT(*) from BOARDINFO
+	</select>
+
+	<!-- 게시판리스트 가져오기 -->
+	<select id="list" resultType="boardinfovo" parameterType="java.util.HashMap">
+	<![CDATA[
+	SELECT *
+	    FROM (SELECT ROWNUM AS RNUM, Z.* 
+	    	  FROM (SELECT * 
+	    		  FROM BOARDINFO) Z
+	    WHERE ROWNUM <= #{record_end_no})
+	WHERE RNUM >= #{record_Start_no}
+	]]>
+	</select>
+
+</mapper> 

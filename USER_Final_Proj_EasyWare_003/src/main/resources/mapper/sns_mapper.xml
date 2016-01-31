@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="sns">
+	
+	<insert id="insert" parameterType="snsvo">
+		insert into sns values(sns_seq.nextVal,#{mem_code},#{mem_name},#{dept_num},sysdate,#{sns_title},#{sns_content})
+	</insert>
+	
+	<select id="firstlist" parameterType="java.util.HashMap" resultType="snsvo">
+	<![CDATA[ 
+		SELECT ROWNUM AS RNUM, Z.* 
+	    	FROM (SELECT 
+	    		  SNS_NUM,
+ 				  mem_code,
+ 				  mem_name,
+ 				  dept_num,
+		   		  sns_date,
+				  sns_title, 
+				  sns_content FROM sns
+				  WHERE  dept_num = #{dept_num} ORDER BY sns_date desc) Z
+	       	WHERE ROWNUM <= 5 order by sns_date asc
+	   ]]>
+	</select>
+	
+	<select id="listget" parameterType="java.util.HashMap" resultType="snsvo">
+		SELECT ROWNUM AS RNUM, Z.* 
+	    	FROM (SELECT 
+	    		  SNS_NUM,
+ 				  mem_code,
+ 				  mem_name,
+ 				  dept_num,
+		   		  sns_date,
+				  sns_title, 
+				  sns_content FROM sns
+				  WHERE  dept_num = #{dept_num}
+				  <if test="recent != 0"> 
+				  AND sns_num > #{recent}
+				  </if>
+				  <if test="recent == 0">
+				  AND sns_num >= #{recent}
+				  </if>
+		<![CDATA[ 		  
+				 
+		ORDER BY sns_date DESC) Z order by sns_date asc
+	   ]]>
+	</select>
+	
+	<select id="listlog" parameterType="java.util.HashMap" resultType="snsvo">
+		<![CDATA[ 
+		SELECT ROWNUM AS RNUM, Z.* 
+	    	FROM (SELECT 
+	    		  SNS_NUM,
+ 				  mem_code,
+ 				  mem_name,
+ 				  dept_num,
+		   		  sns_date,
+				  sns_title, 
+				  sns_content FROM sns
+				  WHERE  dept_num = #{dept_num} 
+				  AND sns_num < #{decent}
+				ORDER BY sns_date DESC ) Z WHERE ROWNUM <= 5
+	   ]]>
+	</select>
+	
+
+
+
+</mapper>

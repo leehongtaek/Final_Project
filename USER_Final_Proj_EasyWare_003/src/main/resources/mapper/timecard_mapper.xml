@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="timecard">
+
+	<!-- TIMECARD 모든 데이터의 총합을 구함 -->
+	<select id="total" resultType="int" parameterType="timecardvo" >
+		SELECT COUNT(*) FROM TIMECARD 
+		WHERE MEM_CODE = #{mem_code} 
+	</select>
+	
+	<!-- TIMECARD 페이징 처리 -->
+	<select id="paging" resultType="timecardvo" parameterType="java.util.HashMap">
+	<![CDATA[ 
+	SELECT *
+	    FROM (SELECT ROWNUM AS RNUM, Z.* 
+	    	FROM (SELECT TC_NUM,
+ 				  TO_CHAR(TCWORK_START,'YY.MM.DD') as DAY,
+ 				  TO_CHAR(TCWORK_START,'HH24:MI:SS') as TCWORK_START,
+		   		  TO_CHAR(TCWORK_END,'HH24:MI:SS') as TCWORK_END,
+				  TO_CHAR(TCGOOUT_START,'HH24:MI:SS') as TCGOOUT_START, 
+				  TO_CHAR(TCGOOUT_END,'HH24:MI:SS') as TCGOOUT_END,
+				  TC_STATE,TCETC,MEM_CODE 
+				  FROM TIMECARD 
+				  WHERE MEM_CODE = #{mem_code} ORDER BY DAY DESC
+				  ) Z
+	       	WHERE ROWNUM <= #{record_end_no})
+	WHERE RNUM >= #{record_Start_no}
+	]]>
+	</select>
+	
+	<!-- 출근 시간 INSERT  -->  
+	<insert id="insert_work_start" parameterType="timecardvo">  
+		insert into TIMECARD (TC_NUM,TCWORK_START,MEM_CODE,TC_STATE,TCETC)
+		values (timecard_seq.NEXTVAL,sysdate,#{mem_code},#{tc_state},' ')
+	</insert>
+	
+	<!-- 출근 시간 SELECT  -->
+	<select id="work_start_check" parameterType="timecardvo" resultType="int">
+		SELECT COUNT(*) FROM TIMECARD
+		WHERE TO_CHAR(TCWORK_START,'YYMMDD') = TO_CHAR(SYSDATE,'YYMMDD')
+		AND MEM_CODE = #{mem_code}
+	</select>
+
+	<!-- 비고 정보 SELECT  -->
+	<select id="select_work_etc" parameterType="timecardvo" resultType="String">
+		SELECT TCETC FROM TIMECARD
+		WHERE MEM_CODE = #{mem_code} AND TO_CHAR(TCWORK_START,'YY.MM.DD') = #{day}
+	</select>
+	
+	<!-- 페이징 전에 사용하던 LIST 대시보드에서 대신 사용 -->
+	<select id="list" parameterType="timecardvo" resultType="timecardvo">
+	<![CDATA[ 
+		SELECT ROWNUM,TC_NUM,
+ 				  TO_CHAR(TCWORK_START,'YY.MM.DD') as DAY,
+ 				  TO_CHAR(TCWORK_START,'HH24:MI:SS') as TCWORK_START,
+		   		  TO_CHAR(TCWORK_END,'HH24:MI:SS') as TCWORK_END,
+				  TO_CHAR(TCGOOUT_START,'HH24:MI:SS') as TCGOOUT_START, 
+				  TO_CHAR(TCGOOUT_END,'HH24:MI:SS') as TCGOOUT_END,
+				  TC_STATE,TCETC,MEM_CODE 
+		FROM TIMECARD
+	    WHERE TO_CHAR(TCWORK_START,'YYMM') = TO_CHAR(sysdate,'YYMM') 
+		AND MEM_CODE = #{mem_code}
+	    AND ROWNUM <=3
+	    ORDER BY DAY DESC
+	]]>
+	</select>
+	
+	
+	
+	<select id="tc_state_check" parameterType="timecardvo" resultType="String">
+		SELECT TC_STATE 
+		FROM TIMECARD
+		WHERE MEM_CODE = #{mem_code}
+		AND TO_CHAR(TCWORK_START,'YYMMDD') = TO_CHAR(sysdate,'YYMMDD')
+	</select>
+	
+	<!-- ====== UPDATE STATEMENT START====== -->
+	<update id="update_work_end" parameterType="timecardvo">
+		UPDATE TIMECARD set 
+		TCWORK_END= sysdate,
+		TC_STATE = #{tc_state}
+		WHERE MEM_CODE = #{mem_code}
+		AND TO_CHAR(TCWORK_START,'YYMMDD') = TO_CHAR(sysdate,'YYMMDD')
+	</update>
+	
+	<update id="update_tc_state" parameterType="timecardvo">
+		UPDATE TIMECARD set TC_STATE= #{tc_state}
+		WHERE MEM_CODE = #{mem_code}
+		AND TO_CHAR(TCWORK_START,'YYMMDD') = TO_CHAR(sysdate,'YYMMDD')
+	</update>
+
+	<update id="update_etc" parameterType="timecardvo">
+		update TIMECARD set TCETC= #{tcetc}
+		where MEM_CODE = #{mem_code}
+		AND TO_CHAR(TCWORK_START,'YY.MM.DD') = #{day}
+	</update>
+
+	<update id="update_goout_start" parameterType="timecardvo">
+		update TIMECARD set TCGOOUT_START= sysdate
+		where MEM_CODE = #{mem_code}
+		AND TO_CHAR(TCWORK_START,'YYMMDD') = TO_CHAR(sysdate,'YYMMDD')
+	</update>
+
+	<update id="update_goout_end" parameterType="timecardvo">
+		update TIMECARD set TCGOOUT_END=sysdate
+		where MEM_CODE = #{mem_code}
+		AND TO_CHAR(TCWORK_START,'YYMMDD') = TO_CHAR(sysdate,'YYMMDD')
+	</update>
+	<!-- ======= UPDATE STATEMENT END ======= -->
+
+
+</mapper>

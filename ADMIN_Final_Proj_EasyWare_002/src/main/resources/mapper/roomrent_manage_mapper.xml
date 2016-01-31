@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="room_Rent" >
+	<insert id="room_Insert" parameterType="roomrentvo">
+		insert into room values(Room_seq.nextVal, #{room_name}, #{room_loc}, #{room_limit})
+	</insert>
+ 	<select id="room_List" resultType="roomrentvo">
+ 		select room_num, room_name, room_loc, room_limit from room
+ 	</select>
+ 	<select id="rent_List" resultType="roomrentvo">
+ 		select re.rent_num, re.rent_reason, re.rent_date_start, re.rent_date_end,
+ 		ro.room_name, ro.room_loc, mem.mem_name
+		from Rent re, Room ro, Member mem
+		where re.mem_code = mem.mem_code and re.room_num = ro.room_num
+ 	</select>
+ 	<select id="room_Detail" resultType="roomrentvo" parameterType="int">
+ 		select room_num, room_name, room_loc, room_limit from room
+ 		where room_num = #{room_num}
+ 	</select>
+ 	<update id="room_Modify" parameterType="roomrentvo">
+ 		update room set room_name = #{room_name}, room_loc = #{room_loc},
+ 		room_limit = #{room_limit} where room_num = #{room_num}
+ 	</update>
+ 	<delete id="room_Delete" parameterType="int">
+ 		delete from rent where room_num = #{room_num}
+ 	</delete>
+</mapper>

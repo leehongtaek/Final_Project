@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="loging_user_connect">
+
+	<!-- 정상 로그인 -->
+	<insert id="login" parameterType="membervosecurity">
+		INSERT INTO LOG_CONNECT VALUES(
+	    LOG_CONNECT_SEQ.NEXTVAL,
+	    '0' ,
+	    #{mem_code},
+	    #{mem_id},
+	    #{mem_name},
+	    #{mem_ip},
+	    SYSDATE
+	    )
+	</insert>
+	
+	<!-- 정상 로그아웃 -->
+	<insert id="logout" parameterType="membervosecurity">
+		INSERT INTO LOG_CONNECT VALUES(
+	    LOG_CONNECT_SEQ.NEXTVAL,
+	    '1' ,
+	    #{mem_code},
+	    #{mem_id},
+	    #{mem_name},
+	    #{mem_ip},
+	    SYSDATE
+	    )
+	</insert>
+	
+	<!-- 로그인 실패 -->
+	<insert id="login_fail" parameterType="membervosecurity">
+		INSERT INTO LOG_CONNECT(
+		LOG_ID,
+		LOG_TYPE, 
+		MEM_ID,
+		MEM_IP,
+		LOG_DATE
+		) VALUES(
+	    LOG_CONNECT_SEQ.NEXTVAL,
+	    '2' ,
+	    #{mem_id},
+	    #{mem_ip},
+	    SYSDATE
+	    )
+	</insert>
+	
+</mapper>

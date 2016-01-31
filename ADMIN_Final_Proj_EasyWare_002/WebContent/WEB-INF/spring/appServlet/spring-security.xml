@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/security
+http://www.springframework.org/schema/security/spring-security.xsd">
+	
+	<!-- 권한 이름 설정 커스텀-->
+	<beans:bean id="roleVoter"
+		class="org.springframework.security.access.vote.RoleVoter">
+		<beans:property name="rolePrefix" value=""></beans:property>	
+    </beans:bean>
+	
+	<beans:bean id="accessDecisionManager" 
+		class="org.springframework.security.access.vote.AffirmativeBased">
+		<beans:constructor-arg name="decisionVoters"  ref="roleVoter"/>
+	</beans:bean>
+	
+	
+	<!-- 
+		authentication-manager-ref : 인증을 관리하는 매니저가 참조하는 설정 
+		accessDecisionManager : 기본 ACL을 사용자가 임의 정의로 변경하는 설정을 참조하는 속성 
+	 -->
+	<!-- authentication-manager-ref 권한 정보를 가지는 객체 -->
+	<http pattern="/resources/**" security="none"/>
+	<http pattern="/index" security="none"/>
+	<http pattern="/denied" security="none"/>
+	<http access-decision-manager-ref="accessDecisionManager" 
+		authentication-manager-ref="jdbc-auth">
+		<anonymous enabled="true" granted-authority="anonymous" />
+		<intercept-url pattern="/**" access="0"/>
+		<form-login login-page="/index" 
+			authentication-failure-url="/denied"  
+			login-processing-url="/loginAuth"
+			username-parameter="mem_id"
+			password-parameter="mem_pwd"
+			default-target-url="/"
+		/>
+		<logout invalidate-session="true" 
+			logout-url="/logout" 
+			logout-success-url="/index"
+			delete-cookies="true"
+		/>
+		<access-denied-handler error-page="/denied" />
+		<session-management invalid-session-url="/index" >
+			<concurrency-control max-sessions="1" 
+				expired-url="/index"/>
+		</session-management>
+	</http> 
+	
+	
+	<!--  authentication-manager 랑 연동할 dataSource--> 
+	<!-- dataSource -->
+	<beans:bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<beans:property name="jndiName" value="java:comp/env/jdbc/myora" />
+	</beans:bean>
+	
+	<!-- custom UserDetail -->
+	<authentication-manager id="jdbc-auth">
+		<authentication-provider user-service-ref="customAuthenticationProvider" />
+		<authentication-provider>
+			<user-service>
+				<user name="root" authorities="0,1" password="123"/>
+				<user name="admin" authorities="0,1" password="123"/>
+			</user-service>
+		</authentication-provider>
+	</authentication-manager>
+	
+	<!-- customAuthenticationProvider  커스텀 -->
+	<beans:bean id="customAuthenticationProvider" class="com.easyware.common.security.CustomizeJdbcDaoImp" >
+		<beans:property name="dataSource" ref="dataSource" />
+		<beans:property name="rolePrefix" value="" />
+		<beans:property name="usersByUsernameQuery"
+			value="SELECT MEM_CODE,
+				   		MEM_ID,
+				   		MEM_PWD,
+				   		MEM_NAME,
+						DEPT_NUM,
+						POSIT_NUM,
+						MEM_TEL,
+						MEM_EMAIL,
+						MEM_HIREDATE,
+						MEM_BIRTHDATE,
+						MEM_POST,
+						MEM_ROADADDR,
+						MEM_JIBUNADDR,
+						MEM_DETAILADDR,
+						MEM_STATE
+				    FROM MEMBER WHERE MEM_ID=?" />
+		<beans:property name="authoritiesByUsernameQuery"
+			value="SELECT ROLE_AUTH FROM MEMROLES WHERE MEM_ID=?" />
+		<beans:property name="enableGroups" value="false" />
+	</beans:bean>
+	
+</beans:beans>

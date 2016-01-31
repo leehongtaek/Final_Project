@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="scheduler">
+	
+	<insert id="insert" parameterType="schedulervo">
+		insert into Schedule values(Schedule_seq.nextVal,#{mem_code},#{sched_someday_date},#{sched_somedayend_date},#{sched_someday_time},#{sched_somedayend_time},
+										#{sched_event},0,'normal',#{sched_content})
+	</insert>
+	
+	<select id="list" parameterType="java.lang.String" resultType="schedulervo">
+		select * from Schedule where mem_code=#{mem_code} order by sched_num desc
+	</select>
+	<select id="list_30" parameterType="java.lang.String" resultType="schedulervo">
+		<![CDATA[SELECT ROWNUM AS RNUM, Z.* FROM (select * from schedule where mem_code=#{mem_code} order by sched_check asc , SCHED_SOMEDAY_DATE desc) Z 
+			WHERE ROWNUM <= 20 order by sched_check desc , SCHED_SOMEDAY_DATE desc 
+	       	 ]]>
+	</select>
+	
+	
+	<select id="data" parameterType="int" resultType="schedulervo">
+		select * from Schedule where sched_num=#{sched_num}
+	</select>
+	
+	<select id="newdata" parameterType="java.lang.String" resultType="schedulervo">
+		SELECT ROWNUM AS RNUM, Z.* 
+	    	FROM (select * from Schedule where mem_code=#{mem_code} ORDER BY sched_num desc) Z
+	       	WHERE ROWNUM = 1
+	</select>	
+	
+	
+	<update id="update" parameterType="schedulervo">
+		update Schedule set sched_someday_date = #{sched_someday_date},sched_somedayend_date = #{sched_somedayend_date},
+			sched_someday_time = #{sched_someday_time},sched_somedayend_time = #{sched_somedayend_time},
+			sched_event=#{sched_event},sched_content=#{sched_content} where sched_num=#{sched_num}
+	</update>
+	
+	
+	<update id="check" parameterType="int">
+		update Schedule set sched_check='1' where sched_num=#{sched_num}
+	</update>
+
+	<delete id="delete" parameterType="int">
+		delete from schedule where sched_num=#{sched_num}
+	</delete>
+	
+</mapper>

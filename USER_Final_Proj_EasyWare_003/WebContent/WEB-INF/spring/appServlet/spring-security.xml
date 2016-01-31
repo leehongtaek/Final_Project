@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:websocket="http://www.springframework.org/schema/websocket"
+	xmlns:lang="http://www.springframework.org/schema/lang"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd
+		http://www.springframework.org/schema/websocket http://www.springframework.org/schema/websocket/spring-websocket-4.1.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.2.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.2.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-4.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-4.2.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
+
+<!-- 2015.12.12  Spring Security 설정  @author Kim Byeong Gi -->
+
+<!--================================================================ -->
+<!--============================= DB 연동 시작 ========================= -->
+<!--================================================================ -->
+
+	<!-- 1. 커넥션 풀을 관리 하는 dataSource 객체를  SqlSessionFatory에  DI 시킴 -->
+	<beans:bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<beans:property name="jndiName" value="java:comp/env/jdbc/myora"/>
+	</beans:bean>
+
+	<!-- 2. Mybatis SqlSessionFatory은 DI 커넥션 풀을 가진 dataSource를 주입 받고 , 나머지 Mapper.xml File과
+		    config.xml file 읽은 정보를 가진 Spring에서 구현된 Resource 객체로 저장된다.
+		    SqlSessionFatory은 SelSession의 인스턴스를 생성하는 객체이다.
+		         참고로 SqlSessionFatory는 스프링의 FatoryBean 구현한 객체이다.
+	 -->
+	<beans:bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<beans:property name="configLocation" value="classpath:config/config-mybatis.xml" />
+		<beans:property name="mapperLocations" value="classpath*:mapper/*.xml"/>
+		<beans:property name="dataSource" ref="dataSource"/>
+	</beans:bean>
+	
+	<!-- 3. Mybatis SqlSessionTemplate은 스프링과 Mybatis가 연동하기 위해서 만들어진 객체이다.
+			SqlSessionTemplate은 스프링의 트랜잭션 매니저와 연동하여 사용된다. -->
+	<beans:bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<beans:constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory" />
+	</beans:bean>
+
+	<!-- 4. Transaction Manager 트랜 잭션을 처리할 트랜잭션 매니저 객체를 생성하고 ,
+			커넥션 풀을 관리하는 dataSource객체를 DI 시킴-->
+	<beans:bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<beans:property name="dataSource" ref="dataSource" />
+	</beans:bean>
+
+	<!-- 5. Transaction Anotation을 사용하는 부분에 트랜잭션 처리 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	
+<!--============================================================== -->
+<!--=========================== AOP 설정 시작 ======================== -->
+<!--============================================================== -->
+
+	<!-- AOP를 구현한 컴포넌트 스캔 -->	 
+	<context:component-scan base-package="com.easyware.common.loging" annotation-config="true"/>
+	
+	<!-- AOP ASPECT ANNOTAION을 인식 -->
+	<aop:aspectj-autoproxy/>
+	
+	<!-- Advice 대상이 되는 객체를 Bean으로 선언 -->
+	<beans:bean id="log_login" class="com.easyware.common.loging.aop.Log_login" />
+	
+	<!-- login_Success_Handler 로그인 성공시 로깅을 찍을 로직을 수행하는 핸들러 구현 -->
+	<beans:bean id="login_Success_Handler" class="com.easyware.common.security.Login_Success_Handler"/>
+	
+	<!-- login_Success_Handler 로그인 실패시 로깅을 찍을 로직을 수행하는 핸들러 구현 --> 
+	<beans:bean id="login_Failure_Handler" class="com.easyware.common.security.Login_Failure_Handler"/>
+	
+	<!-- logout_Success_Handler 로그아웃 성공시 로깅을 찍을 로직을 수행하는 핸들러 구현 -->
+	<beans:bean id="logout_Success_Handler" class="com.easyware.common.security.Logout_Success_Handler"/>
+	
+
+<!--============================================================== -->
+<!--====================== USER MODE 시큐리티 설정 시작 ================= -->
+<!--============================================================== -->
+	
+	
+	<!--====================== 권한  설정 커스텀  =========================-->  
+	<beans:bean id="roleVoter"
+		class="org.springframework.security.access.vote.RoleVoter">
+		<beans:property name="rolePrefix" value=""></beans:property>	
+    </beans:bean>
+	
+	<beans:bean id="accessDecisionManager" 
+		class="org.springframework.security.access.vote.AffirmativeBased">
+		<beans:constructor-arg name="decisionVoters"  ref="roleVoter"/>
+	</beans:bean> 
+	
+	<!--===================  스프링 시큐리티 필터 제외 대상   =================== -->
+	<!-- 보안 제외 대상 자원 리소스 허용 , index 페이지 허용, signup ,sign 성공 페이지 제외  -->
+	<http pattern="/favicon.ico" security="none" />
+	<http pattern="/resources/**" security="none"/> 
+	<http pattern="/index" security="none"/>
+	<http pattern="/signup" security="none"/>
+	<http pattern="/signup_result" security="none"/>
+	<!-- 회원가입 같은 기본 서비스 허용  -->
+	<http pattern="/user/**" security="none"/>
+	<http pattern="/denied" security="none"/>
+	<http pattern="/error/**" security="none"/>
+
+	
+	<!-- ======================= 보안 대상 URL ======================== -->
+	<http access-decision-manager-ref="accessDecisionManager"  
+		authentication-manager-ref="jdbc-auth">
+		<intercept-url pattern="/**" access="1"/>
+		<form-login login-page="/index" 
+			authentication-failure-url="/denied"
+			login-processing-url="/loginAuth"
+			username-parameter="mem_id"
+			password-parameter="mem_pwd"
+			authentication-success-handler-ref="login_Success_Handler"
+			authentication-failure-handler-ref="login_Failure_Handler"
+		/>
+		<!-- default-target-url="/" authentication-success-handler-ref 를 사용하면 같이 사용 못함 --> 
+		<!-- login-page 로그인 페이지 지정  -->
+		<!-- authentication-failure-url 로그인 인증 실패시 URL -->
+		<!-- username-parameter username 파라미터 커스텀  -->
+		<!-- password-parameter password 파라미터 커스텀  -->
+		<!-- default-target-url 로그인 성공후  이동 할 페이지 지정  -->
+		<logout invalidate-session="true" 
+			logout-url="/logout" 
+			delete-cookies="true"
+			success-handler-ref="logout_Success_Handler"
+		/>
+		<!-- logout-success-url="/index" 은  success-handler-ref 같이 사용 불가함-->
+		<!-- invalidate-session="true" 로그아웃 후 세션 삭제  -->
+		<!-- logout-url="/logout" logout할 url 지정   -->
+		<!-- logout-success-url="/index" 로그 아웃 성공 후 갈 url 지정 -->
+		<!-- delete-cookies 로그아웃 후 쿠키 삭제 허용 -->
+		
+		<access-denied-handler error-page="/denied" />
+		<!-- 액세스 거부시 페이지 지정  -->
+		
+		<session-management invalid-session-url="/index"  >
+			<concurrency-control max-sessions="1" 
+				expired-url="/index"/>
+		<!-- 동시 세션 1개만 허용  -->		
+		<!-- expired-url 동시 접근시 다른 유저를 보낼 url 지정  -->		
+		<!-- invalid-session-url="/" 세션 사라질 때 갈 url 지정   -->		
+		</session-management>
+	</http>  
+	
+	
+	
+	<!-- =================== 사용자 인증 부분 커스텀  ======================== -->
+	<!-- authentication-manager 사용자의 비밀번호를 인증하는 역할을 한다. 
+	     authentication-manager는  Authentication(인증 정보를 가진 객체)객체에 각종 사용자 정보를 담는다.
+	     AuthenticationProvider 객체는 authentication-manager가 사용자 비밀번호를 가지고   DB로부터 정보를 가져와서
+	           사용자 인증 확인과 사용자 권한을 부여한다. -->
+	<authentication-manager id="jdbc-auth">
+		<authentication-provider user-service-ref="customAuthenticationProvider" />
+		<authentication-provider>
+			<user-service>
+				<user name="root" authorities="0,1" password="123"/>
+				<user name="admin" authorities="0,1" password="123"/>
+			</user-service>
+		</authentication-provider>        
+	</authentication-manager>
+	
+	<!--  authentication-manager랑 연동할 dataSource--> 
+	<beans:bean id="sec_dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<beans:property name="jndiName" value="java:comp/env/jdbc/myora" />
+	</beans:bean>
+	
+	<!-- customAuthenticationProvider  커스텀 JdbcDaoImp 이용 
+		  인증 성공 후 UserDetail 구현한 Class 형태로  리턴하여 Authentication에 저장
+		 DB로부터 해당 사용자의 정보를 가져옴, Spring은 일반적으로 jdbcTempleate를 제공함
+		 -->
+	<beans:bean id="customAuthenticationProvider" class="com.easyware.common.security.CustomizeJdbcDaoImp" >
+		<beans:property name="dataSource" ref="sec_dataSource" />
+		<beans:property name="rolePrefix" value="" />
+		<beans:property name="usersByUsernameQuery"
+			value="SELECT MEM_CODE,
+				   		MEM_ID,
+				   		MEM_PWD,
+				   		MEM_NAME,
+						DEPT_NUM,
+						POSIT_NUM,
+						MEM_TEL,
+						MEM_EMAIL,
+						MEM_HIREDATE,
+						MEM_BIRTHDATE,
+						MEM_POST,
+						MEM_ROADADDR,
+						MEM_JIBUNADDR,
+						MEM_DETAILADDR,
+						MEM_STATE
+				    FROM MEMBER WHERE MEM_ID=?" />
+		<beans:property name="authoritiesByUsernameQuery"
+			value="SELECT ROLE_AUTH FROM MEMROLES WHERE MEM_ID=?" />
+		<beans:property name="enableGroups" value="false" />
+	</beans:bean>
+	
+
+	
+</beans:beans>

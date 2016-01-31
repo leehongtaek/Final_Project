@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- TIME TABEL TABLE 구조 TC_NUM TCWORK_START TCWORK_END TCGOOUT_START TCGOOUT_END 
+	TC_STATE TCETC MEM_CODE -->
+<mapper namespace="report">
+
+	<!-- ===========================보고서 양식======================================== -->
+	<!--보고서 양식 추가 -->
+	<select id="docAdd" parameterType="docformvo">
+		insert into DocForm values (
+		DocForm_seq.nextVal,
+		#{doc_name},
+		#{doc_form})
+	</select>
+
+	<!-- 보고서 양식 디테일 보기 -->
+	<select id="docDetail" parameterType="int" resultType="docformvo">
+		select
+		doc_num, doc_name, doc_form from DocForm
+		where
+		doc_num=#{doc_num}
+	</select>
+
+	<!-- 보고서 양식 리스트 보기 -->
+	<select id="docList" resultType="docformvo">
+		select doc_num, doc_name,
+		doc_form from DocForm
+		order by 1 desc
+	</select>
+
+	<!-- 보고서 양식 작성 폼 불러오기 -->
+	<select id="docgetForm" resultType="String" parameterType="int">
+		select doc_form from docform
+		where doc_num = #{doc_num}
+	</select>
+
+	<!-- 보고서 양식 수정 -->
+	<update id="docModify" parameterType="docformvo">
+		update DocForm
+		set doc_name
+		= #{doc_name},
+		doc_form = #{doc_form}
+		where doc_num = #{doc_num}
+	</update>
+
+	<!-- 보고서 양식 삭제 -->
+	<delete id="docDelete" parameterType="int">
+		delete from DocForm where
+		doc_num = #{doc_num}
+	</delete>
+
+	<!-- ===========================보고서 작성 ,임시저장, 수정, 삭제================= -->
+
+	<!-- 보고서 작성 INSERT -->
+	<insert id="reportWriteAdd" parameterType="reportvo">
+		INSERT INTO report(
+		report_num,
+		report_writer,
+		report_title,
+		report_content,
+		report_regdate,
+		report_subdate,
+		report_state
+		) VALUES
+		(Report_seq.NEXTVAL,
+		#{report_writer},
+		#{report_title},
+		#{report_content},
+		sysdate,
+		<if test="report_state != null">
+			<choose>
+				<when test="report_state == 1">
+					sysdate,
+					#{report_state}
+				</when>
+				<otherwise>
+					'77/7/7',
+					0
+				</otherwise>
+			</choose>
+		</if>
+		)
+	</insert>
+
+	<!-- 가장 최근에 추가한 자신의 reprot PK 가져오기 -->
+	<select id="getReportNum" resultType="int" parameterType="reportvo">
+ 	<![CDATA[ 
+ 		SELECT report_num FROM (SELECT r.report_num  
+ 		FROM report r
+	    WHERE report_writer= #{report_writer} ORDER BY 1 DESC)
+	    WHERE ROWNUM <=1
+	  ]]>
+	</select>
+
+	<!-- 보고서 승인자 insert -->
+	<!-- 보고서 승인자 수정할 때도 쓰임 -->
+	<select id="apprAdd" parameterType="apprReportvo">
+		insert into
+		ApprReport(appr_num, report_num, mem_code, appr_turn, appr_state)
+		values (
+		ApprReport_seq.nextVal,
+		#{report_num},
+		#{mem_code},
+		#{appr_turn},
+		#{appr_state}
+		)
+	</select>
+
+	<!-- 임시 저장 보고서 리스트 -->
+	<select id="reportAddList" parameterType="String" resultType="reportvo">
+		select *
+		from report
+		where report_writer = #{report_writer}
+		and
+		report_state = 0
+		order by 1 desc
+	</select>
+
+	<!-- 임시 보고서 디테일 보기 -->
+	<select id="reportAddDetail" parameterType="int" resultType="reportvo">
+		select
+		report_num, report_writer, report_title, report_content
+		from
+		report
+		where
+		report_num=#{report_num}
+	</select>
+
+	<!-- 승인자 select 문 -->
+	<select id="getApprDetail" parameterType="int" resultType="java.util.HashMap">
+		select a.mem_code as MEM_CODE, a.appr_turn as APPR_TURN, m.mem_name as
+		MEM_NAME, d.dept_name as DEPT_NAME, p.posit_name as POSIT_NAME
+		from
+		Report r, ApprReport a, member m, MemDept d, MemPosit p
+		where
+		r.report_num = a.report_num
+		and a.mem_code = m.mem_code
+		and m.dept_num =
+		d.dept_num
+		and m.posit_num = p.posit_num
+		and r.report_num =
+		#{report_num}
+		order by APPR_TURN asc
+
+	</select>
+
+	<!-- 임시저장 보고서 수정 -->
+	<update id="reportAddModify" parameterType="reportvo">
+		UPDATE REPORT SET
+		report_title = #{report_title},
+		report_content =
+		#{report_content},
+		<if test="report_state != null">
+			<choose>
+				<when test="report_state == 1">
+					report_subdate = SYSDATE,
+					report_state =
+					#{report_state}
+				</when>
+				<otherwise>
+					report_regdate = SYSDATE
+				</otherwise>
+			</choose>
+		</if>
+		where report_num = #{report_num}
+	</update>
+
+	<!-- 임시저장 보고서 승인자 수정하기 위해서 우선 삭제 -->
+	<delete id="apprDelete" parameterType="reportvo">
+		DELETE FROM APPRREPORT
+		WHERE REPORT_NUM = #{REPORT_NUM}
+	</delete>
+
+	<!-- 임시 저장 보고서 삭제 -->
+	<delete id="reportAddDelete" parameterType="int">
+		DELETE FROM REPORT
+		WHERE REPORT_NUM = #{REPORT_NUM}
+	</delete>
+
+	<!-- ===========================workflow======================================== -->
+
+	<!-- workflow 리스트 -->
+	<select id="workflowList" parameterType="java.util.HashMap"
+		resultType="workflowvo">
+		SELECT R.REPORT_NUM AS REPORT_NUM, R.REPORT_WRITER AS REPORT_WRITER,
+		R.REPORT_TITLE AS REPORT_TITLE, R.REPORT_CONTENT AS REPORT_CONTENT,
+		R.REPORT_SUBDATE AS REPORT_SUBDATE, R.REPORT_STATE AS REPORT_STATE,
+		M.MEM_NAME AS MEM_NAME
+		FROM REPORT R, MEMBER M
+		WHERE R.REPORT_WRITER =
+		M.MEM_CODE
+		AND R.REPORT_WRITER = #{REPORT_WRITER}
+		<if test="workflowType != null">
+			<choose>
+				<when test="workflowType == 1">
+					AND R.REPORT_STATE = '1'
+				</when>
+				<when test="workflowType == 2">
+					AND R.REPORT_STATE = '2'
+				</when>
+				<when test="workflowType == 3">
+					AND R.REPORT_STATE = '3'
+				</when>
+				<otherwise>
+					AND R.REPORT_STATE IN (1,2,3)
+				</otherwise>
+			</choose>
+		</if>
+		ORDER BY REPORT_SUBDATE DESC
+	</select>
+
+
+
+	<!-- 결재할 사원 리스트 Ajax용!! -->
+	<select id="workflowApprMemberList" parameterType="int"
+		resultType="java.util.HashMap">
+		select r.report_num as report_num, a.mem_code as mem_code,
+		a.appr_turn as appr_turn, a.appr_state as appr_state, m.mem_name as
+		mem_name
+		from Report r,
+		ApprReport a, member m
+		where r.report_num =
+		a.report_num
+		and a.mem_code
+		= m.mem_code
+		and r.report_num = #{report_num}
+		ORDER BY appr_turn ASC
+	</select>
+
+	<!-- 결재할 보고서 리스트 -->
+	<select id="ApprovalList" parameterType="String" resultType="workflowvo">
+		SELECT A.REPORT_NUM AS REPORT_NUM, R.REPORT_STATE AS REPORT_STATE,
+		A.MEM_CODE as MEM_CODE, A.APPR_TURN
+		AS APPR_TURN,
+		A.APPR_STATE AS
+		APPR_STATE, R.REPORT_WRITER AS
+		REPORT_WRITER,
+		R.REPORT_TITLE AS
+		REPORT_TITLE, R.REPORT_CONTENT AS
+		REPORT_CONTENT,
+		R.REPORT_SUBDATE AS
+		REPORT_SUBDATE, R.REPORT_STATE AS
+		REPORT_STATE,
+		M.MEM_NAME AS MEM_NAME
+		FROM APPRREPORT A,REPORT R, MEMBER
+		M
+		WHERE A.REPORT_NUM =
+		R.REPORT_NUM
+		AND R.REPORT_WRITER = M.MEM_CODE
+		AND
+		A.MEM_CODE =
+		#{REPORT_WRITER}
+		AND
+		A.APPR_STATE = '1'
+		ORDER BY
+		REPORT_SUBDATE DESC
+	</select>
+
+	<!-- 결재할 갯수 count(배지용) -->
+	<select id="ApprovalCount" parameterType="String" resultType="int">
+		SELECT count(*) as REPORTCOUNT
+		FROM APPRREPORT A,REPORT R, MEMBER M
+		WHERE A.REPORT_NUM = R.REPORT_NUM
+		AND R.REPORT_WRITER = M.MEM_CODE
+		AND
+		A.MEM_CODE = #{REPORT_WRITER}
+		AND A.APPR_STATE = '1'
+	</select>
+
+
+	<!-- 결재 하기전 report_state 확인 -->
+	<select id="reportState" resultType="String" parameterType="int">
+		select report_state from report
+		where report_num = #{report_num}
+	</select>
+
+	<!-- 결재버튼 누르면 report_num로 찾아서 appr_turn을 비교해서 appr_state 를 변경해줌 -->
+	<update id="approvalModify" parameterType="apprReportvo">
+		UPDATE APPRREPORT SET
+		appr_state = #{appr_state}
+		where report_num = #{report_num}
+		and
+		appr_turn = #{appr_turn}
+	</update>
+
+	<!-- 최종승인자 결재하면 report_state를 2로 update -->
+	<update id="approvalFinalModify" parameterType="reportvo">
+		UPDATE REPORT
+		SET
+		report_state = #{report_state}
+		where report_num = #{report_num}
+	</update>
+
+	<!-- 레포트에 결재 대기중인 member 총 수 -->
+	<select id="reportMemberCount" resultType="int">
+		select count(*) from
+		APPRREPORT
+		where report_num = #{report_num}
+	</select>
+
+
+	<!-- 보고서 반려 및 취소(보고서 상태값 변경) , 기안취소 -->
+	<update id="reportRefuseModify" parameterType="reportvo">
+		update REPORT set
+		report_state = #{report_state}
+		where report_num = #{report_num}
+	</update>
+
+	<!-- 결재자 반려 및 취소(결재자 상태값 변경) , 기안취소 -->
+	<update id="approvalRefuseModify" parameterType="reportvo">
+		update
+		APPRREPORT set
+		<if test="report_state != null">
+			<choose>
+				<when test="report_state == 3">
+					appr_state = '3'
+					where appr_state = '1'
+					and report_num
+					= #{report_num}
+				</when>
+				<when test="report_state == 1">
+					appr_state = '1'
+					where appr_state = '3'
+					and report_num
+					= #{report_num}
+				</when>
+				<when test="report_state == 0">
+					appr_state = '0'
+					where report_num = #{report_num}
+				</when>
+				<otherwise></otherwise>
+			</choose>
+		</if>
+
+	</update>
+
+	<!-- 반려된 보고서 내용,제목 수정 -->
+	<update id="reportRefuseUpdate" parameterType="reportvo">
+		UPDATE report SET
+		report_title = #{report_title},
+		report_content = #{report_content}
+		where report_num = #{report_num}
+	</update>
+
+	<!-- index 에 뿌려질 레포트 갯수들 -->
+	<select id="reportIndexCount" resultType="java.util.HashMap" parameterType="String">
+		SELECT one.* , two.*, three.*, allr.* FROM
+		( SELECT COUNT(REPORT_STATE) as STATE1 FROM REPORT WHERE REPORT_STATE = 1 and REPORT_WRITER = #{REPORT_WRITER} ) one ,
+		( SELECT COUNT(REPORT_STATE) as STATE2 FROM REPORT WHERE REPORT_STATE = 2 and REPORT_WRITER = #{REPORT_WRITER}) two ,
+		( SELECT COUNT(REPORT_STATE) as STATE3 FROM REPORT WHERE REPORT_STATE = 3 and REPORT_WRITER = #{REPORT_WRITER}) three ,
+		( SELECT COUNT(REPORT_STATE) as STATE4 FROM REPORT WHERE REPORT_STATE in (1,2,3) and REPORT_WRITER = #{REPORT_WRITER}) allr , DUAL    
+	</select>
+	
+	<!--  workflow total -->
+	<select id="workflowTotal" resultType="int">
+		select count(*) from report
+	</select>
+
+	<!--  workflow 리스트 paging -->
+	<select id="workflowListPaging" resultType="workflowvo" parameterType="java.util.HashMap">
+		select * from (select rownum as rnum, Z.*
+		from(
+			SELECT R.REPORT_NUM AS REPORT_NUM, R.REPORT_WRITER AS REPORT_WRITER,
+		R.REPORT_TITLE AS REPORT_TITLE, R.REPORT_CONTENT AS REPORT_CONTENT,
+		R.REPORT_SUBDATE AS REPORT_SUBDATE, R.REPORT_STATE AS REPORT_STATE,
+		M.MEM_NAME AS MEM_NAME
+		FROM REPORT R, MEMBER M
+		WHERE R.REPORT_WRITER =
+		M.MEM_CODE
+		AND R.REPORT_WRITER = #{REPORT_WRITER}
+		<if test="WORKFLOWTYPE != null">
+			<choose>
+				<when test="WORKFLOWTYPE == 1">
+					AND R.REPORT_STATE = '1'
+					ORDER BY REPORT_SUBDATE DESC
+				</when>
+				<when test="WORKFLOWTYPE == 2">
+					AND R.REPORT_STATE = '2'
+					ORDER BY REPORT_SUBDATE DESC
+				</when>
+				<when test="WORKFLOWTYPE == 3">
+					AND R.REPORT_STATE = '3'
+					ORDER BY REPORT_SUBDATE DESC
+				</when>
+				<otherwise>
+					AND R.REPORT_STATE IN (1,2,3)
+					ORDER BY REPORT_SUBDATE DESC
+				</otherwise>
+			</choose>
+		</if>
+		) Z
+		<![CDATA[
+		where rownum <= #{record_end_no})
+		where rnum >= #{record_Start_no}
+		]]>
+		
+	</select>
+
+
+
+</mapper>
+
